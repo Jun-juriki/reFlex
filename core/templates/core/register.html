@@ -1,0 +1,12 @@
+<form method="post" style="max-width: 400px; margin: auto;">
+    {% csrf_token %} <h2>Регистрация пациента</h2>
+    <input type="email" name="email" placeholder="Email" required><br><br>
+    <input type="password" name="password" placeholder="Пароль" required><br><br>
+    <input type="text" name="full_name" placeholder="ФИО"><br><br>
+    <input type="number" name="age" placeholder="Возраст"><br><br>
+    <select name="gender">
+        <option value="male">Мужской</option>
+        <option value="female">Женский</option>
+    </select><br><br>
+    <button type="submit">Зарегистрироваться</button>
+</form>
