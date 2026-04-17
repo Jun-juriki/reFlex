@@ -3,9 +3,36 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from datetime import timedelta
 from .models import ActivityLog
+from core.ai_service import ai_service
 
 
 @login_required  # Доступ только авторизованным
+def get_advice_for_user(user):
+    """Получение персонализированного совета для пользователя"""
+    profile = user.patient_profile
+
+    # Рассчитываем метрики для совета
+    progress_percent = profile.current_progress
+
+    if profile.goal_created_at:
+        days_elapsed = (timezone.now().date() - profile.goal_created_at.date()).days
+        expected_progress = (days_elapsed / profile.target_days) * 100 if profile.target_days > 0 else 0
+        days_diff = expected_progress - progress_percent
+    else:
+        days_diff = 0
+
+    streak = calculate_streak(user)
+
+    # Генерируем совет через ИИ
+    advice = ai_service.generate_advice(
+        progress_percent=progress_percent,
+        days_diff=days_diff,
+        streak=streak,
+        level=profile.level
+    )
+
+    return advice
+
 def profile_view(request):
     profile = request.user.patient_profile
     now = timezone.now()

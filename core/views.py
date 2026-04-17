@@ -6,53 +6,43 @@ from .serializers import RegisterSerializer, PatientProfileSerializer
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from .models import User, PatientProfile
+from .ai_service import ai_service
+from django.utils import timezone
 
 # --- ПОЛИНА ЭТО ЗАГЛУШКА ТВОЕЙ ЧАСТИ ---
 
-def generate_mock_smart_goal(profile):
-    """Генерация программы с вшитыми уровнями прогрессии"""
+def generate_smart_goal(profile):
+    """Генерация SMART-цели через ИИ-сервис"""
+    print("🚀 Генерация SMART-цели...")
 
-    profile.target_value = (profile.baseline_value or 0) * 1.5
-    profile.goal_text = (
-        f"Цель: Увеличение дистанции ({profile.limitation_type}) "
-        f"до {profile.target_value} {profile.baseline_unit} за 4 недели."
-    )
+    goal_text = ai_service.generate_smart_goal(profile)
 
-    # Структура программы теперь содержит уровни внутри каждого упражнения
-    profile.training_program = [
-        {
-            "name": "Разминка (суставная)",
-            "description": "Подготовка целевых групп мышц",
-            "progression": {
-                "level_1": "10 мин (1-7 день)",
-                "level_2": "12 мин (8-14 день)",
-                "level_3": "15 мин (15-28 день)",
-                "upgrade_every": "7 дней"
-            }
-        },
-        {
-            "name": f"Тренировка: {profile.limitation_type}",
-            "description": f"Специальные упражнения для коррекции {profile.limitation_type}",
-            "progression": {
-                "level_1": "15 мин (1-10 день)",
-                "level_2": "25 мин (11-20 день)",
-                "level_3": "35 мин (21-28 день)",
-                "upgrade_every": "10 дней"
-            }
-        },
-        {
-            "name": "Силовая выносливость",
-            "description": "Удержание позы / статика",
-            "progression": {
-                "level_1": "3 повтора (1-14 день)",
-                "level_2": "5 повторов (15-21 день)",
-                "level_3": "8 повторов (22-28 день)",
-                "upgrade_every": "7-10 дней"
-            }
-        }
-    ]
+    # Рассчитываем целевое значение
+    if not profile.target_value and profile.baseline_value:
+        profile.target_value = profile.baseline_value * 1.5
 
+    profile.goal_text = goal_text
+    profile.goal_created_at = timezone.now()
+    profile.is_goal_valid = True
+    profile.is_achieved = False
+    profile.current_progress = 0.0
+    profile.strikes = 0
     profile.save()
+
+    # Генерация программы тренировок
+    generate_training_program(profile)
+
+    return goal_text
+
+
+def generate_training_program(profile):
+    """Генерация программы тренировок через ИИ-сервис"""
+    print("🏋️ Генерация программы тренировок...")
+    program = ai_service.generate_exercise_program(profile)
+    profile.training_program = program
+    profile.save()
+    return program
+
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]  # Регистрация открыта для всех
@@ -127,21 +117,33 @@ def register_view(request):
 
 
 def anketa_view(request):
-    """Страница заполнения анкеты [cite: 20-24, 178]"""
+    
+    if not request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        print("🔍 POST запрос получен!")  # И эту
+        
+        profile = request.user.patient_profile
+    """Страница заполнения анкеты"""
     if not request.user.is_authenticated:
         return redirect('home')
 
     if request.method == 'POST':
         profile = request.user.patient_profile
+
+        # Сохраняем данные из формы
         profile.diagnosis = request.POST.get('diagnosis')
         profile.diagnosis_detail = request.POST.get('diagnosis_detail')
         profile.limitation_type = request.POST.get('limitation_type')
         profile.baseline_value = float(request.POST.get('baseline_value'))
         profile.baseline_condition = request.POST.get('baseline_condition')
+        profile.target_days = int(request.POST.get('target_days', 28))
+        profile.baseline_unit = request.POST.get('baseline_unit', 'м')
         profile.save()
 
-        # Тут вызываем нашу заглушку ИИ
-        generate_mock_smart_goal(profile)
+        # Генерируем SMART-цель через ИИ
+        generate_smart_goal(profile)
 
         return render(request, 'core/anketa.html', {
             'profile': profile,
