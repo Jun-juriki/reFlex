@@ -1,5 +1,12 @@
-<div style="text-align: center; margin-top: 100px;">
-    <h1>RehabPath 🐧</h1>
-    <p>Ваш персональный путь к восстановлению</p>
-    <a href="{% url 'register' %}"><button style="padding: 15px 30px; background: green; color: white;">Начать работу</button></a>
+<div style="text-align: center; margin-top: 100px; font-family: sans-serif;">
+    <h1>ReFlex 🐧</h1>
+    <p>Твой путь к восстановлению через игру</p>
+    <div style="margin-top: 20px;">
+        <a href="{% url 'login' %}">
+            <button style="padding: 15px 40px; background: #2196F3; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-right: 10px;">Вход</button>
+        </a>
+        <a href="{% url 'register' %}">
+            <button style="padding: 15px 40px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Регистрация</button>
+        </a>
+    </div>
 </div>

@@ -39,17 +39,23 @@
         <h4 style="margin-top: 25px; color: #2c3e50;">Программа тренировок:</h4>
         <ul style="list-style: none; padding: 0;">
             {% for item in profile.training_program %}
-            <li style="background: white; margin-bottom: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <strong style="color: #388e3c;">{{ item.type }}</strong> — {{ item.frequency }}<br>
-                <small style="color: #666;">{{ item.description }}</small>
-            </li>
-            {% empty %}
-            <li>Программа еще не сформирована.</li>
-            {% endfor %}
+    <li style="background: white; margin-bottom: 15px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #4CAF50;">
+        <strong style="color: #2e7d32; font-size: 1.1em;">{{ item.name }}</strong>
+        <p style="margin: 5px 0; color: #666;">{{ item.description }}</p>
+
+        <div style="font-size: 0.9em; color: #333; background: #f1f8e9; padding: 5px 10px; border-radius: 4px; display: inline-block;">
+            Старт: <b>{{ item.progression.level_1 }}</b>
+        </div>
+    </li>
+    {% empty %}
+    <li>Программа еще не сформирована.</li>
+    {% endfor %}
         </ul>
 
         <div style="margin-top: 30px; text-align: center;">
-            <a href="{% url 'home' %}" style="text-decoration: none; color: #666; font-weight: bold;">← Вернуться на главную</a>
+            <a href="{% url 'profile' %}" style="display: inline-block; padding: 15px 30px; background: #4CAF50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                Перейти в личный кабинет →
+            </a>
         </div>
     </div>
     {% endif %}

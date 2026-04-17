@@ -1,0 +1,65 @@
+<div style="max-width: 600px; margin: 40px auto; font-family: sans-serif; color: #333;">
+
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="margin-bottom: 5px;">Привет, {{ user.full_name|default:user.username }}! 🐧</h2>
+        <div style="display: inline-block; background: #fff176; padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 0.9em;">
+            Уровень {{ level }}
+        </div>
+        <span style="margin-left: 10px;">🔥 {{ profile.strikes }} / {{ profile.max_strikes }}</span>
+    </div>
+
+    <div style="background: #e0e0e0; height: 15px; border-radius: 10px; overflow: hidden; margin-bottom: 10px;">
+        <div style="width: {{ profile.current_progress|dictsort:'0' }}%; background: #4CAF50; height: 100%;"></div>
+    </div>
+    <p style="text-align: center; font-size: 0.9em; color: #666; margin-bottom: 30px;">Твой общий прогресс: {{ xp }} XP</p>
+
+    <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 5px solid #2196f3; margin-bottom: 30px;">
+        <h4 style="margin: 0 0 10px 0; color: #1976d2;">Твоя цель:</h4>
+        <p style="margin: 0;">{{ profile.goal_text }}</p>
+    </div>
+
+    <h3 style="color: #2c3e50; border-bottom: 2px solid #f0f7ff; padding-bottom: 10px;">Программа на сегодня:</h3>
+
+    {% for item in program %}
+    <div style="background: #fff; border: 1px solid #d1e3f8; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: #2e7d32; font-size: 1.1em;">{{ item.name }}</strong>
+            {% if item.is_locked %}
+                <span style="color: #999; font-size: 0.8em;">🔒 Ждем восстановления</span>
+            {% endif %}
+        </div>
+        <p style="margin: 10px 0; color: #666; font-size: 0.95em;">{{ item.description }}</p>
+
+        <div style="display: flex; gap: 10px; margin: 15px 0;">
+            <div style="flex: 1; background: #f1f8e9; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
+                <span style="display: block; color: #4caf50; font-weight: bold;">Ур. 1</span>
+                {{ item.progression.level_1 }}
+            </div>
+            <div style="flex: 1; background: #fff8e1; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
+                <span style="display: block; color: #ff9800; font-weight: bold;">Ур. 2</span>
+                {{ item.progression.level_2 }}
+            </div>
+            <div style="flex: 1; background: #fbe9e7; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
+                <span style="display: block; color: #e64a19; font-weight: bold;">Ур. 3</span>
+                {{ item.progression.level_3 }}
+            </div>
+        </div>
+
+        {% if not item.is_locked %}
+            <a href="{% url 'exercise_detail' item.idx %}" style="text-decoration: none;">
+                <button style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
+                    Начать выполнение
+                </button>
+            </a>
+        {% else %}
+            <button disabled style="width: 100%; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed;">
+                Доступно через {{ item.progression.upgrade_every }}
+            </button>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="{% url 'home' %}" style="color: #2196f3; text-decoration: none;">← Вернуться на главную</a>
+    </div>
+</div>

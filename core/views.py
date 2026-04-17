@@ -3,26 +3,53 @@ from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .serializers import RegisterSerializer, PatientProfileSerializer
-from django.contrib.auth import login
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 from .models import User, PatientProfile
 
 # --- ПОЛИНА ЭТО ЗАГЛУШКА ТВОЕЙ ЧАСТИ ---
 
 def generate_mock_smart_goal(profile):
-    """Имитация работы ИИ"""
-    # Используем значения, которые ввел врач
+    """Генерация программы с вшитыми уровнями прогрессии"""
+
     profile.target_value = (profile.baseline_value or 0) * 1.5
-    profile.target_days = 28
     profile.goal_text = (
-        f"SMART-цель: Увеличить показатель ({profile.limitation_type}) "
-        f"с {profile.baseline_value} до {profile.target_value} {profile.baseline_unit} за 28 дней."
+        f"Цель: Увеличение дистанции ({profile.limitation_type}) "
+        f"до {profile.target_value} {profile.baseline_unit} за 4 недели."
     )
 
-    # Генерируем тестовую программу (именно этот список ищет цикл {% for %})
+    # Структура программы теперь содержит уровни внутри каждого упражнения
     profile.training_program = [
-        {"type": "Разминка", "description": "Плавные движения 5 мин", "frequency": "Ежедневно"},
-        {"type": "Основное", "description": f"Упражнения на {profile.limitation_type}", "frequency": "3 раза в неделю"},
-        {"type": "Растяжка", "description": "Глубокое дыхание и статика", "frequency": "После тренировки"}
+        {
+            "name": "Разминка (суставная)",
+            "description": "Подготовка целевых групп мышц",
+            "progression": {
+                "level_1": "10 мин (1-7 день)",
+                "level_2": "12 мин (8-14 день)",
+                "level_3": "15 мин (15-28 день)",
+                "upgrade_every": "7 дней"
+            }
+        },
+        {
+            "name": f"Тренировка: {profile.limitation_type}",
+            "description": f"Специальные упражнения для коррекции {profile.limitation_type}",
+            "progression": {
+                "level_1": "15 мин (1-10 день)",
+                "level_2": "25 мин (11-20 день)",
+                "level_3": "35 мин (21-28 день)",
+                "upgrade_every": "10 дней"
+            }
+        },
+        {
+            "name": "Силовая выносливость",
+            "description": "Удержание позы / статика",
+            "progression": {
+                "level_1": "3 повтора (1-14 день)",
+                "level_2": "5 повторов (15-21 день)",
+                "level_3": "8 повторов (22-28 день)",
+                "upgrade_every": "7-10 дней"
+            }
+        }
     ]
 
     profile.save()
@@ -58,6 +85,21 @@ def home_view(request):
     """Главная страница"""
     return render(request, 'core/home.html')
 
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('profile')
+        else:
+            messages.error(request, "Неверная почта или пароль")
+
+    return render(request, 'core/login.html')
 
 def register_view(request):
     """Страница регистрации [cite: 15-18]"""
@@ -107,3 +149,4 @@ def anketa_view(request):
         })
 
     return render(request, 'core/anketa.html')
+

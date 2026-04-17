@@ -1,0 +1,21 @@
+<div style="max-width: 500px; margin: 50px auto; text-align: center; font-family: sans-serif;">
+    <h2 style="color: #2e7d32;">{{ exercise.name }}</h2>
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 15px; margin-bottom: 30px;">
+        <h4>Инструкция:</h4>
+        <p>{{ exercise.description }}</p>
+        <hr>
+        <p><strong>Текущая нагрузка:</strong> {{ exercise.progression.level_1 }}</p>
+    </div>
+
+    <form method="post" action="{% url 'complete_exercise' idx %}">
+        {% csrf_token %}
+        <button name="status" value="success" style="padding: 15px 30px; background: #4caf50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px;">
+            ✅ Выполнил (Получить XP)
+        </button>
+        <button name="status" value="failed" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 10px; cursor: pointer; width: 100%;">
+            ❌ Не справился (+1 страйк)
+        </button>
+    </form>
+    <br>
+    <a href="{% url 'profile' %}" style="color: #666;">Вернуться назад</a>
+</div>
