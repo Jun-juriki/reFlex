@@ -218,42 +218,47 @@ def get_forecast(user):
 
 
 def get_chart_data(user):
-    """Подготавливает данные для графика прогресса"""
     profile = user.patient_profile
     stats = user.stats
-    
-    baseline = profile.baseline_value or 0
-    target = profile.target_value or baseline * 1.5 if baseline > 0 else 100
-    
-    # Плановая линия
+
+    baseline = float(profile.baseline_value or 10.0)
+    # Цель: либо из профиля, либо +50% от базы (для наглядности)
+    target = float(profile.target_value or baseline * 1.5)
+    days_target = profile.target_days or 30
+
+    # 1. ПЛАН: Рассчитываем точки для КАЖДОГО дня (чтобы линия была сплошной)
     plan_points = []
-    days_target = profile.target_days or 28
-    for day in range(0, days_target + 1, max(1, days_target // 10)):
-        progress = day / days_target if days_target > 0 else 0
-        value = baseline + (target - baseline) * progress
-        plan_points.append({"day": day, "value": round(value, 1)})
-    
-    # Фактические точки
+    daily_step = (target - baseline) / days_target
+    for day in range(days_target + 1):
+        val = baseline + (daily_step * day)
+        plan_points.append({"day": day, "value": round(val, 1)})
+
+    # 2. ФАКТ: Распределяем прогресс по реальным датам тренировок
     actual_points = [{"day": 0, "value": baseline}]
-    
-    logs = ActivityLog.objects.filter(
-        user=user,
-        status='success'
-    ).order_by('completed_at')
-    
+
     if profile.goal_created_at:
         start_date = profile.goal_created_at.date()
-        for log in logs[:10]:
-            day = (log.completed_at.date() - start_date).days
-            if 0 <= day <= days_target:
-                current_value = baseline + (target - baseline) * stats.current_progress
-                actual_points.append({"day": day, "value": round(current_value, 1)})
-    
+        logs = ActivityLog.objects.filter(user=user, status='success').order_by('completed_at')
+
+        # Моделируем рост: каждая тренировка — это шаг вперед
+        # В твоем update_user_gamification это +2% от разницы (target - baseline)
+        current_val = baseline
+        step_val = (target - baseline) * 0.02
+
+        for log in logs:
+            day_num = (log.completed_at.date() - start_date).days
+            if 0 <= day_num <= days_target:
+                current_val += step_val
+                actual_points.append({
+                    "day": day_num,
+                    "value": round(min(current_val, target), 1)
+                })
+
     return {
         "plan": plan_points,
         "actual": actual_points,
         "baseline": baseline,
-        "target": target,
+        "target": round(target, 1),
         "unit": profile.baseline_unit or "ед."
     }
 
@@ -263,6 +268,11 @@ def profile_view(request):
     profile = request.user.patient_profile
     stats, _ = UserStats.objects.get_or_create(user=request.user)
     now = timezone.now()
+    xp_per_level = 1000  # Допустим, 1 уровень = 100 XP
+    # Находим сколько XP набрано именно на текущем уровне
+    xp_in_current_level = stats.total_xp % xp_per_level
+    # Считаем процент заполнения шкалы для текущего уровня
+    level_progress = (xp_in_current_level / xp_per_level) * 100
 
     updated_program = []
     program_data = profile.training_program or []
@@ -293,16 +303,17 @@ def profile_view(request):
     
     # Получаем данные для графика
     chart_data = get_chart_data(request.user)
-    
+
     return render(request, 'gamification/profile.html', {
         'profile': profile,
         'stats': stats,
+        'level_progress': level_progress,
         'program': updated_program,
         'achievements': UserAchievement.objects.filter(user=request.user),
         'quests': get_quests_progress(request.user),
         'ai_advice': ai_advice,
         'forecast': forecast,
-        'chart_data': json.dumps(chart_data),
+        'chart_data': json.dumps(get_chart_data(request.user)),
     })
 
 

@@ -305,6 +305,59 @@
       .stats-row { gap: 0.6rem; }
       .stat-badge { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
     }
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .achievement-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(80, 210, 180, 0.15);
+      border-radius: 16px;
+      padding: 1rem 0.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .achievement-item:hover {
+      background: rgba(80, 210, 180, 0.1);
+      transform: translateY(-3px);
+      border-color: rgba(80, 210, 180, 0.5);
+    }
+
+    .achievement-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .achievement-name {
+      color: #eefaf5;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* Всплывающая подсказка при наведении на ачивку */
+    .achievement-item:hover::after {
+      content: attr(data-description);
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a252f;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      width: 140px;
+      z-index: 10;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border: 1px solid rgba(80, 210, 180, 0.3);
+    }
   </style>
 </head>
 <body>
@@ -323,9 +376,9 @@
 
       <div class="progress-section">
         <div class="progress-bar-container">
-          <div class="progress-fill" style="width: {{ stats.current_progress }}%;"></div>
+          <div class="progress-fill" style="width: {{ level_progress }}%;"></div>
         </div>
-        <p style="color: rgba(180, 230, 210, 0.7); font-size: 0.85rem;">{{ stats.current_progress|floatformat:1 }}% пути к цели</p>
+        <p style="color: rgba(180, 230, 210, 0.7); font-size: 0.85rem;">{{ level_progress|floatformat:1 }}% пути к цели</p>
       </div>
     </div>
 
@@ -398,7 +451,21 @@
       {% endif %}
     </div>
     {% endfor %}
-
+    <div class="card">
+      <h4 style="color: #b2f0e0; margin-bottom: 1rem;">🏆 Достижения</h4>
+      <div class="achievements-grid">
+        {% for ua in achievements %}
+        <div class="achievement-item" data-description="{{ ua.achievement.description }}">
+          <span class="achievement-icon">{{ ua.achievement.icon }}</span>
+          <span class="achievement-name">{{ ua.achievement.name }}</span>
+        </div>
+        {% empty %}
+        <p style="color: rgba(180, 230, 210, 0.5); font-size: 0.85rem; text-align: center; width: 100%;">
+          Пока нет достижений. Продолжай тренироваться!
+        </p>
+        {% endfor %}
+      </div>
+    </div>
     <!-- Квесты -->
     <div class="card">
       <h4 style="color: #b2f0e0; margin-bottom: 1rem;">📋 Квесты</h4>
@@ -476,9 +543,14 @@
           }
         },
         scales: {
-          x: { 
+          x: {
+            type: 'linear',
             title: { display: true, text: 'Дни', color: '#80deea' },
-            ticks: { color: '#eefaf5' }
+            ticks: { color: '#eefaf5',
+            stepSize: 5
+            },
+            min: 0,
+            max: 30
           },
           y: { 
             title: { display: true, text: 'Значение', color: '#80deea' },
