@@ -103,7 +103,7 @@
 ### Шаг 1. Клонирование репозитория
 
 ```bash
-git clone
+git clone https://github.com/Jun-juriki/reFlex.git
 cd reFlex
 ```
 
