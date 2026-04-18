@@ -1,62 +1,349 @@
-<div style="max-width: 600px; margin: 40px auto; font-family: sans-serif; line-height: 1.6;">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Медицинская анкета | ReFlex</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(210, 90, 160, 0.22) 0%, rgba(140, 70, 180, 0) 70%);
+      top: -20%;
+      right: -15%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, rgba(200, 100, 200, 0.2) 0%, rgba(90, 50, 130, 0) 70%);
+      bottom: -10%;
+      left: -10%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Карточка */
+    .card {
+      background: #2C3E50;
+      backdrop-filter: blur(14px);
+      border-radius: 28px;
+      padding: 2rem;
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
+      border: 1px solid rgba(70, 200, 170, 0.3);
+    }
+
+    .card h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #b2f0e0, #78e0c8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .card-subtitle {
+      text-align: center;
+      color: rgba(180, 230, 210, 0.7);
+      font-size: 0.85rem;
+      margin-bottom: 1.8rem;
+    }
+
+    /* Форма — стили как на странице регистрации */
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #B2F0E0;
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(80, 210, 180, 0.3);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+      color: #eefaf5;
+      transition: all 0.2s ease;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #c05fbb;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 3px rgba(192, 95, 187, 0.2);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(180, 230, 210, 0.4);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* Кнопка */
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s;
+      margin-top: 0.5rem;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(190, 90, 170, 0.4);
+    }
+
+    /* Результат */
+    .result-card {
+      background: #2C3E50;
+      border: 2px solid #3cb371;
+      box-shadow: 0 0 0 2px rgba(60, 179, 113, 0.3), 0 25px 40px -12px rgba(0, 0, 0, 0.4);
+    }
+
+    .goal-text {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 16px;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #eefaf5;
+      margin: 1rem 0;
+    }
+
+    .program-list {
+      list-style: none;
+      margin: 1rem 0;
+    }
+
+    .program-item {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-left: 3px solid #4caf50;
+    }
+
+    .program-name {
+      color: #b2f0e0;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .program-desc {
+      color: rgba(210, 240, 225, 0.85);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+    }
+
+    .program-level {
+      display: inline-block;
+      background: rgba(76, 175, 80, 0.2);
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #8bc34a;
+    }
+
+    .btn-profile {
+      display: inline-block;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(105deg, #4CAF50, #45a049);
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-profile:hover {
+      transform: translateY(-2px);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: rgba(180, 230, 210, 0.7);
+      text-decoration: none;
+      font-size: 0.85rem;
+      text-align: center;
+      width: 100%;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background: rgba(80, 210, 180, 0.2);
+      margin: 1rem 0;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 1rem; }
+      .card { padding: 1.5rem; }
+      .form-row { flex-direction: column; gap: 0; }
+      .form-row .form-group { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
     {% if not success %}
-    <h2 style="color: #2c3e50;">Медицинская анкета (Заполняет врач)</h2>
-    <form method="post" style="display: flex; flex-direction: column; gap: 15px;">
+    <!-- ФОРМА АНКЕТЫ -->
+    <div class="card">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <img src="/static/images/ham.png" alt="ReFlex" style="width: 70px; height: auto; border-radius: 20px;">
+      </div>
+      <h2>Медицинская анкета</h2>
+      <div class="card-subtitle">Заполните данные для формирования SMART-цели</div>
+
+      <form method="post">
         {% csrf_token %}
 
-        <label>Основной диагноз:</label>
-        <input type="text" name="diagnosis" placeholder="Напр: Ишемический инсульт" required style="padding: 10px;">
-
-        <label>Уточнение / Анамнез:</label>
-        <textarea name="diagnosis_detail" placeholder="Дополнительные сведения о состоянии" style="padding: 10px; hieght: 80px;"></textarea>
-
-        <label>Тип ограничения:</label>
-        <input type="text" name="limitation_type" placeholder="Напр: Ходьба, мелкая моторика" required style="padding: 10px;">
-
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Текущий показатель (м/балл):</label>
-                <input type="number" step="0.1" name="baseline_value" placeholder="0.0" required style="width: 100%; padding: 10px;">
-            </div>
-            <div style="flex: 2;">
-                <label>Условия замера:</label>
-                <input type="text" name="baseline_condition" placeholder="Напр: С опорой на ходунки" style="width: 100%; padding: 10px;">
-            </div>
+        <div class="form-group">
+          <label>Основной диагноз</label>
+          <input type="text" name="diagnosis" placeholder="Например: Ишемический инсульт" required>
         </div>
 
-        <button type="submit" style="padding: 15px; background: #fb8c00; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Сгенерировать путь восстановления
-        </button>
-    </form>
+        <div class="form-group">
+          <label>Уточнение / Анамнез</label>
+          <textarea name="diagnosis_detail" rows="3" placeholder="Дополнительные сведения о состоянии..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Тип ограничения</label>
+          <input type="text" name="limitation_type" placeholder="Например: Ходьба, мелкая моторика" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Текущий показатель</label>
+            <input type="number" step="0.1" name="baseline_value" placeholder="0.0" required>
+          </div>
+          <div class="form-group">
+            <label>Условия замера</label>
+            <input type="text" name="baseline_condition" placeholder="С опорой на ходунки">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Единицы измерения</label>
+            <input type="text" name="baseline_unit" placeholder="м, мин, баллы" value="м">
+          </div>
+          <div class="form-group">
+            <label>Срок достижения (дней)</label>
+            <input type="number" name="target_days" value="28" min="7" max="90">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">✨ Сгенерировать путь восстановления</button>
+      </form>
+    </div>
 
     {% else %}
-    <div style="background: #f0f7ff; padding: 30px; border-radius: 15px; border: 1px solid #d1e3f8;">
-        <h3 style="color: #1976d2; margin-top: 0;">Ваша SMART-цель сформирована ✨</h3>
-        <p style="font-size: 1.1em; background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #1976d2;">
-            {{ profile.goal_text }}
-        </p>
+    <!-- РЕЗУЛЬТАТ: SMART-цель и программа -->
+    <div class="card result-card">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <img src="/static/images/ham.png" alt="ReFlex" style="width: 60px; height: auto; border-radius: 20px;">
+      </div>
+      <h2>✨ Ваша SMART-цель сформирована</h2>
+      <div class="goal-text">{{ profile.goal_text }}</div>
 
-        <h4 style="margin-top: 25px; color: #2c3e50;">Программа тренировок:</h4>
-        <ul style="list-style: none; padding: 0;">
-            {% for item in profile.training_program %}
-    <li style="background: white; margin-bottom: 15px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #4CAF50;">
-        <strong style="color: #2e7d32; font-size: 1.1em;">{{ item.name }}</strong>
-        <p style="margin: 5px 0; color: #666;">{{ item.description }}</p>
+      <h4 style="color: #b2f0e0; margin: 1.5rem 0 0.5rem 0;">🏋️ Программа тренировок</h4>
+      
+      <ul class="program-list">
+        {% for item in profile.training_program %}
+        <li class="program-item">
+          <div class="program-name">{{ item.name }}</div>
+          <div class="program-desc">{{ item.description }}</div>
+          <div class="program-level">⭐ Старт: {{ item.progression.level_1 }}</div>
+        </li>
+        {% empty %}
+        <li style="color: rgba(210, 240, 225, 0.7); text-align: center; padding: 1rem;">Программа формируется...</li>
+        {% endfor %}
+      </ul>
 
-        <div style="font-size: 0.9em; color: #333; background: #f1f8e9; padding: 5px 10px; border-radius: 4px; display: inline-block;">
-            Старт: <b>{{ item.progression.level_1 }}</b>
-        </div>
-    </li>
-    {% empty %}
-    <li>Программа еще не сформирована.</li>
-    {% endfor %}
-        </ul>
+      <hr>
 
-        <div style="margin-top: 30px; text-align: center;">
-            <a href="{% url 'profile' %}" style="display: inline-block; padding: 15px 30px; background: #4CAF50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                Перейти в личный кабинет →
-            </a>
-        </div>
+      <a href="{% url 'profile' %}" class="btn-profile">🚀 Перейти в личный кабинет</a>
     </div>
     {% endif %}
-</div>
+
+    <a href="{% url 'home' %}" class="back-link">← На главную</a>
+  </div>
+</body>
+</html>

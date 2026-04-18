@@ -1,65 +1,684 @@
-<div style="max-width: 600px; margin: 40px auto; font-family: sans-serif; color: #333;">
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Мой профиль | ReFlex</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
 
-    <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="margin-bottom: 5px;">Привет, {{ user.full_name|default:user.username }}! 🐧</h2>
-        <div style="display: inline-block; background: #fff176; padding: 5px 15px; border-radius: 15px; font-weight: bold; font-size: 0.9em;">
-            Уровень {{ level }}
+    body::before {
+      content: '';
+      position: absolute;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(210, 90, 160, 0.22) 0%, rgba(140, 70, 180, 0) 70%);
+      top: -20%;
+      right: -15%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, rgba(200, 100, 200, 0.2) 0%, rgba(90, 50, 130, 0) 70%);
+      bottom: -10%;
+      left: -10%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .profile-container {
+      position: relative;
+      z-index: 2;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+    .ham-profile-header {
+      width: 120px; /* Увеличили размер */
+      height: auto;
+      display: block;
+      margin: 0 auto 1rem; /* Центрируем и добавляем отступ снизу */
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Тень для объема */
+      transition: transform 0.3s ease;
+    }
+
+    .ham-profile-header:hover {
+      transform: scale(1.1) rotate(5deg); /* Оживляем при наведении */
+    }
+
+    /* Иконка в тексте (если оставишь маленькую) */
+    .ham-icon-small {
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+    }
+    /* Карточки */
+    .card {
+      background: #2C3E50;
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.8rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4);
+      /* ВОТ ОНА: Яркая, но стильная обводка */
+      border: 1px solid rgba(178, 240, 224, 0.4);
+    }
+
+    /* Статистика */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-badge {
+      background: rgba(255,255,255,0.12);
+      padding: 0.6rem 1.2rem;
+      border-radius: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      color: #eefaf5;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Прогресс-бар */
+    .progress-section {
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar-container {
+      background: rgba(255,255,255,0.15);
+      border-radius: 20px;
+      height: 20px;
+      overflow: hidden;
+      margin: 0.8rem 0;
+    }
+
+    .progress-fill {
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      height: 100%;
+      width: 0%;
+      transition: width 0.5s ease;
+      border-radius: 20px;
+    }
+
+    /* SMART-цель */
+    .goal-card { border: 1px solid #42a5f5 !important; }
+
+    .goal-card h4 {
+      color: #80deea;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .goal-text {
+      color: #eefaf5;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    /* AI-совет */
+    .ai-card { border: 1px solid #c05fbb !important; }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .ai-icon {
+      font-size: 1.8rem;
+    }
+
+    .ai-label {
+      color: #b2f0e0;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+    }
+
+    .ai-text {
+      color: white;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    /* Прогноз */
+    .forecast-card { border: 1px solid #ff9800 !important; }
+
+    .forecast-text {
+      color: #ffe0b2;
+      font-size: 0.9rem;
+    }
+
+    /* Упражнения */
+    .exercise-card {
+      background: #2C3E50;
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.2rem;
+      border: 1px solid #ff9800 !important;
+    }
+
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .exercise-name {
+      color: #b2f0e0;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .lock-badge {
+      background: rgba(0,0,0,0.4);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #aaa;
+    }
+
+    .available-badge {
+      background: rgba(76, 175, 80, 0.2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #8bc34a;
+    }
+    .exercise-desc {
+      color: rgba(210, 240, 225, 0.85);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .levels-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .level-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      padding: 0.6rem;
+      text-align: center;
+    }
+
+    .level-title {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .level-title.level-1 { color: #8bc34a; }
+    .level-title.level-2 { color: #ffb74d; }
+    .level-title.level-3 { color: #ef5350; }
+
+    .level-value {
+      font-size: 0.8rem;
+      color: #eefaf5;
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(105deg, #4CAF50, #45a049);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-start:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-disabled {
+      width: 100%;
+      padding: 0.9rem;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 14px;
+      color: #888;
+      font-weight: 700;
+      cursor: not-allowed;
+    }
+
+    .back-link {
+      display: inline-block;
+      text-align: center;
+      margin-top: 1rem;
+      color: rgba(180, 230, 210, 0.7);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .motivation-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 80px; /* Было 60-70 */
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c05fbb, #ffaa9d);
+      border: 2px solid rgba(255,255,255,0.4);
+      cursor: pointer;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      padding: 0;
+      overflow: hidden; /* Чтобы хомяк не вылезал за края */
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .motivation-btn img {
+      width: 80px;         /* Увеличили размер картинки внутри */
+      height: auto;
+      display: block;
+      pointer-events: none;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+    }
+    .motivation-btn:hover {
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 1rem; }
+      .card { padding: 1.2rem; }
+      .stats-row { gap: 0.6rem; }
+      .stat-badge { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+    }
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .achievement-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(80, 210, 180, 0.15);
+      border-radius: 16px;
+      padding: 1rem 0.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .achievement-item:hover {
+      background: rgba(80, 210, 180, 0.1);
+      transform: translateY(-3px);
+      border-color: rgba(80, 210, 180, 0.5);
+    }
+
+    .achievement-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .achievement-name {
+      color: #eefaf5;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    /* Всплывающая подсказка при наведении на ачивку */
+    .achievement-item:hover::after {
+      content: attr(data-description);
+      position: absolute;
+      bottom: 110%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a252f;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      width: 140px;
+      z-index: 10;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+      border: 1px solid rgba(80, 210, 180, 0.3);
+    }
+    .messages-container {
+      margin-bottom: 2rem;
+    }
+
+    /* Базовый стиль сообщения */
+    .message {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 1.2rem;
+      border-radius: 18px;
+      background: rgba(44, 62, 80, 0.8);
+      backdrop-filter: blur(10px);
+      color: #eefaf5;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+      animation: slideDown 0.4s ease-out;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    }
+
+    /* Иконка хомяка внутри сообщения */
+    .message::before {
+      content: '';
+      width: 35px;
+      height: 35px;
+      background: url("{% static 'images/ham.png' %}") no-repeat center/contain;
+      flex-shrink: 0;
+    }
+
+    /* Успех (XP, достижения) */
+    .message.success {
+      border: 1px solid #8bc34a;
+      box-shadow: 0 0 15px rgba(139, 195, 74, 0.2);
+      border-left: 5px solid #8bc34a;
+    }
+
+    /* Ошибки или предупреждения */
+    .message.error, .message.warning {
+      border: 1px solid #ff70b3;
+      box-shadow: 0 0 15px rgba(255, 112, 179, 0.2);
+      border-left: 5px solid #ff70b3;
+    }
+
+    /* Инфо (цитаты, советы) */
+    .message.info {
+      border: 1px solid #42a5f5;
+      box-shadow: 0 0 15px rgba(66, 165, 245, 0.2);
+      border-left: 5px solid #42a5f5;
+    }
+
+    /* Анимация появления */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-container">
+    {% if messages %}
+      <div class="messages-container">
+        {% for message in messages %}
+          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            <div class="message-content">
+              {{ message }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <!-- Шапка с приветствием -->
+    <div class="card" style="text-align: center;">
+      <img src="{% static 'images/ham.png' %}" class="ham-profile-header" alt="Mascot">
+
+      <h2 style="color: #eefaf5; margin-bottom: 1rem;">
+        Привет, {{ user.full_name|default:user.username }}!
+      </h2>
+
+      <div class="stats-row">
+        <div class="stat-badge">🏆 Уровень {{ stats.level }}</div>
+        <div class="stat-badge">⭐ {{ stats.total_xp }} XP</div>
+        <div class="stat-badge">🔥 {{ stats.current_streak }} дней</div>
+        <div class="stat-badge">⚠️ {{ profile.strikes }}/{{ profile.max_strikes }}</div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-bar-container">
+          <div class="progress-fill" style="width: {{ level_progress }}%;"></div>
         </div>
-        <span style="margin-left: 10px;">🔥 {{ profile.strikes }} / {{ profile.max_strikes }}</span>
+        <p style="color: rgba(180, 230, 210, 0.7); font-size: 0.85rem;">{{ level_progress|floatformat:1 }}% пути к цели</p>
+      </div>
     </div>
 
-    <div style="background: #e0e0e0; height: 15px; border-radius: 10px; overflow: hidden; margin-bottom: 10px;">
-        <div style="width: {{ profile.current_progress|dictsort:'0' }}%; background: #4CAF50; height: 100%;"></div>
-    </div>
-    <p style="text-align: center; font-size: 0.9em; color: #666; margin-bottom: 30px;">Твой общий прогресс: {{ xp }} XP</p>
-
-    <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; border-left: 5px solid #2196f3; margin-bottom: 30px;">
-        <h4 style="margin: 0 0 10px 0; color: #1976d2;">Твоя цель:</h4>
-        <p style="margin: 0;">{{ profile.goal_text }}</p>
+    <!-- SMART-цель -->
+    <div class="card goal-card">
+      <h4>🎯 SMART-цель</h4>
+      <p class="goal-text">{{ profile.goal_text }}</p>
     </div>
 
-    <h3 style="color: #2c3e50; border-bottom: 2px solid #f0f7ff; padding-bottom: 10px;">Программа на сегодня:</h3>
+    <!-- AI-совет дня -->
+    <div class="card ai-card">
+      <div class="ai-header">
+        <span class="ai-icon">🤖</span>
+        <span class="ai-label">СОВЕТ ДНЯ</span>
+      </div>
+      <p class="ai-text">{{ ai_advice }}</p>
+    </div>
+
+    <!-- Прогноз -->
+    <div class="card forecast-card">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+        <span>📈</span>
+        <span style="color: #ffb74d; font-weight: 600;">ПРОГНОЗ ВОССТАНОВЛЕНИЯ</span>
+      </div>
+      <p class="forecast-text">{{ forecast.status }}</p>
+    </div>
+
+    <!-- График -->
+    <div class="card">
+      <h4 style="color: #b2f0e0; margin-bottom: 1rem;">📊 Прогресс: план vs факт</h4>
+      <canvas id="progressChart" style="max-height: 250px; width: 100%;"></canvas>
+    </div>
+
+    <!-- Программа тренировок -->
+    <h3 style="color: #eefaf5; margin: 1.5rem 0 1rem 0.5rem;">🏋️ Программа на сегодня</h3>
 
     {% for item in program %}
-    <div style="background: #fff; border: 1px solid #d1e3f8; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong style="color: #2e7d32; font-size: 1.1em;">{{ item.name }}</strong>
-            {% if item.is_locked %}
-                <span style="color: #999; font-size: 0.8em;">🔒 Ждем восстановления</span>
-            {% endif %}
-        </div>
-        <p style="margin: 10px 0; color: #666; font-size: 0.95em;">{{ item.description }}</p>
-
-        <div style="display: flex; gap: 10px; margin: 15px 0;">
-            <div style="flex: 1; background: #f1f8e9; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
-                <span style="display: block; color: #4caf50; font-weight: bold;">Ур. 1</span>
-                {{ item.progression.level_1 }}
-            </div>
-            <div style="flex: 1; background: #fff8e1; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
-                <span style="display: block; color: #ff9800; font-weight: bold;">Ур. 2</span>
-                {{ item.progression.level_2 }}
-            </div>
-            <div style="flex: 1; background: #fbe9e7; padding: 8px; border-radius: 6px; text-align: center; font-size: 0.85em;">
-                <span style="display: block; color: #e64a19; font-weight: bold;">Ур. 3</span>
-                {{ item.progression.level_3 }}
-            </div>
-        </div>
-
-        {% if not item.is_locked %}
-            <a href="{% url 'exercise_detail' item.idx %}" style="text-decoration: none;">
-                <button style="width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">
-                    Начать выполнение
-                </button>
-            </a>
+    <div class="exercise-card">
+      <div class="exercise-header">
+        <span class="exercise-name">{{ item.name }}</span>
+        {% if item.is_locked %}
+          <span class="lock-badge">🔒 ОТДЫХ</span>
         {% else %}
-            <button disabled style="width: 100%; padding: 12px; background: #ccc; color: white; border: none; border-radius: 8px; cursor: not-allowed;">
-                Доступно через {{ item.progression.upgrade_every }}
-            </button>
+          <span class="available-badge">✅ ДОСТУПНО</span>
         {% endif %}
+      </div>
+      <p class="exercise-desc">{{ item.description }}</p>
+
+      <div class="levels-grid">
+        <div class="level-item">
+          <span class="level-title level-1">УРОВЕНЬ 1</span>
+          <span class="level-value">{{ item.progression.level_1 }}</span>
+        </div>
+        <div class="level-item">
+          <span class="level-title level-2">УРОВЕНЬ 2</span>
+          <span class="level-value">{{ item.progression.level_2 }}</span>
+        </div>
+        <div class="level-item">
+          <span class="level-title level-3">УРОВЕНЬ 3</span>
+          <span class="level-value">{{ item.progression.level_3 }}</span>
+        </div>
+      </div>
+
+      {% if not item.is_locked %}
+        <a href="{% url 'exercise_detail' item.idx %}" style="text-decoration: none;">
+          <button class="btn-start">▶ Начать упражнение</button>
+        </a>
+      {% else %}
+        <button class="btn-disabled" disabled>⏳ Мышцы восстанавливаются</button>
+      {% endif %}
     </div>
     {% endfor %}
-
-    <div style="text-align: center; margin-top: 40px;">
-        <a href="{% url 'home' %}" style="color: #2196f3; text-decoration: none;">← Вернуться на главную</a>
+    <div class="card">
+      <h4 style="color: #b2f0e0; margin-bottom: 1rem;">🏆 Достижения</h4>
+      <div class="achievements-grid">
+        {% for ua in achievements %}
+        <div class="achievement-item" data-description="{{ ua.achievement.description }}">
+          <span class="achievement-icon">{{ ua.achievement.icon }}</span>
+          <span class="achievement-name">{{ ua.achievement.name }}</span>
+        </div>
+        {% empty %}
+        <p style="color: rgba(180, 230, 210, 0.5); font-size: 0.85rem; text-align: center; width: 100%;">
+          Пока нет достижений. Продолжай тренироваться!
+        </p>
+        {% endfor %}
+      </div>
     </div>
-</div>
+    <!-- Квесты -->
+    <div class="card">
+      <h4 style="color: #b2f0e0; margin-bottom: 1rem;">📋 Квесты</h4>
+      {% for quest in quests %}
+      <div style="margin-bottom: 1rem;">
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+          <span style="color: #eefaf5;">{{ quest.icon }} {{ quest.name }}</span>
+          <span style="color: #80deea;">{{ quest.current }}/{{ quest.goal }}</span>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 4px; overflow: hidden;">
+          <div style="width: {{ quest.progress }}%; background: #9b59b6; height: 100%; border-radius: 4px;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Ссылка назад -->
+    <div style="text-align: center; margin: 1rem 0 2rem;">
+      <a href="{% url 'home' %}" class="back-link">← На главную</a>
+    </div>
+  </div>
+
+  <!-- Кнопка мотивации -->
+  <button class="motivation-btn" id="motivationBtn">
+    <img src="{% static 'images/ham.png' %}" alt="Motivation Hamster">
+  </button>
+
+  <!-- Модальное окно мотивации -->
+  <div id="motivationModal" style="display: none; position: fixed; bottom: 100px; right: 30px; width: 280px; background: #2C3E50; border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 101; border: 1px solid rgba(80,210,180,0.3);">
+    <h4 style="color: #b2f0e0; margin-bottom: 0.5rem;">Минутка мотивации 🐧</h4>
+    <p id="motivationText" style="color: #eefaf5; font-size: 0.9rem; line-height: 1.5;"></p>
+    <button onclick="document.getElementById('motivationModal').style.display='none'" style="width: 100%; margin-top: 1rem; padding: 0.5rem; background: rgba(255,255,255,0.1); border: none; border-radius: 12px; color: #b2f0e0; cursor: pointer;">Закрыть</button>
+  </div>
+
+  <script>
+    // График
+    const chartData = {{ chart_data|safe }};
+    const ctx = document.getElementById('progressChart').getContext('2d');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'План',
+            data: chartData.plan.map(p => ({x: p.day, y: p.value})),
+            borderColor: '#42a5f5',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.1,
+            pointRadius: 3,
+            pointBackgroundColor: '#42a5f5'
+          },
+          {
+            label: 'Факт',
+            data: chartData.actual.map(p => ({x: p.day, y: p.value})),
+            borderColor: '#66bb6a',
+            borderWidth: 3,
+            fill: false,
+            tension: 0.1,
+            pointRadius: 5,
+            pointBackgroundColor: '#66bb6a'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            labels: { color: '#eefaf5' }
+          },
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y} ${chartData.unit || ''}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            title: { display: true, text: 'Дни', color: '#80deea' },
+            ticks: { color: '#eefaf5',
+            stepSize: 5
+            },
+            min: 0,
+            max: 30
+          },
+          y: {
+            title: { display: true, text: 'Значение', color: '#80deea' },
+            ticks: { color: '#eefaf5' },
+            min: chartData.baseline,
+            suggestedMax: chartData.target
+          }
+        }
+      }
+    });
+
+    // Мотивационные цитаты
+    const quotes = [
+      "Каждое движение приближает тебя к цели!",
+      "Ты сильнее, чем ты думаешь.",
+      "Маленькие победы сегодня — это большие результаты завтра.",
+      "Твой прогресс вдохновляет!",
+      "Продолжай в том же духе, ты молодец!",
+      "🔥 Серия дней — это твоя сила!",
+      "💪 Ты справляешься! Каждое упражнение делает тебя лучше."
+    ];
+
+    document.getElementById('motivationBtn').addEventListener('click', () => {
+      const modal = document.getElementById('motivationModal');
+      const text = document.getElementById('motivationText');
+      text.innerText = quotes[Math.floor(Math.random() * quotes.length)];
+      modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Закрытие при клике вне модалки
+    document.addEventListener('click', (event) => {
+      const modal = document.getElementById('motivationModal');
+      const btn = document.getElementById('motivationBtn');
+      if (modal.style.display === 'block' && !modal.contains(event.target) && event.target !== btn) {
+        modal.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
