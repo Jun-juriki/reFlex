@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -54,7 +55,7 @@
       z-index: 2;
       width: 100%;
       max-width: 500px;
-      margin-left: 30%;
+      margin: 0;
       background: #2C3E50;
       backdrop-filter: blur(14px);
       border-radius: 16px;
@@ -102,7 +103,7 @@
       margin-left: 0.25rem;
     }
 
-    .input-group input, 
+    .input-group input,
     .input-group select {
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(70, 180, 160, 0.6);
@@ -130,7 +131,7 @@
       color: #eefaf5;
     }
 
-    .input-group input:focus, 
+    .input-group input:focus,
     .input-group select:focus {
       border-color: #d06bc0;
       box-shadow: 0 0 0 3px rgba(208, 107, 192, 0.3);
@@ -282,13 +283,18 @@
 </head>
 <body>
   <div class="register-card">
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+        <img src="{% static 'images/ham.png' %}"
+             alt="ReFlex Mascot"
+             style="width: 220px; height: auto; display: block; margin: 0 auto;">
+    </div>
     <div class="brand">
-      <h1>создать аккаунт</h1>
+      <h1>Создать аккаунт</h1>
     </div>
 
     <form class="register-form" method="post" action="{% url 'register' %}">
       {% csrf_token %}
-      
+
       <div class="input-group">
         <label for="full_name">ФИО</label>
         <input type="text" id="full_name" name="full_name" placeholder="Иванов Иван Иванович" autocomplete="off">
@@ -326,7 +332,7 @@
       </div>
 
       <button type="submit" class="register-btn">зарегистрироваться →</button>
-      
+
       {% if messages %}
         {% for message in messages %}
           <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">

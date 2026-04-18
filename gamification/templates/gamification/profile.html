@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -11,7 +12,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       min-height: 100vh;
       background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
@@ -53,7 +53,25 @@
       max-width: 650px;
       margin: 0 auto;
     }
+    .ham-profile-header {
+      width: 120px; /* Увеличили размер */
+      height: auto;
+      display: block;
+      margin: 0 auto 1rem; /* Центрируем и добавляем отступ снизу */
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3)); /* Тень для объема */
+      transition: transform 0.3s ease;
+    }
 
+    .ham-profile-header:hover {
+      transform: scale(1.1) rotate(5deg); /* Оживляем при наведении */
+    }
+
+    /* Иконка в тексте (если оставишь маленькую) */
+    .ham-icon-small {
+      width: 32px;
+      height: 32px;
+      vertical-align: middle;
+    }
     /* Карточки */
     .card {
       background: #2C3E50;
@@ -61,8 +79,9 @@
       border-radius: 24px;
       padding: 1.8rem;
       margin-bottom: 1.5rem;
-      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
-      border: 1px solid rgba(70, 200, 170, 0.3);
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4);
+      /* ВОТ ОНА: Яркая, но стильная обводка */
+      border: 1px solid rgba(178, 240, 224, 0.4);
     }
 
     /* Статистика */
@@ -108,10 +127,7 @@
     }
 
     /* SMART-цель */
-    .goal-card {
-      background: rgba(33, 150, 243, 0.15);
-      border-left: 4px solid #42a5f5;
-    }
+    .goal-card { border: 1px solid #42a5f5 !important; }
 
     .goal-card h4 {
       color: #80deea;
@@ -127,10 +143,7 @@
     }
 
     /* AI-совет */
-    .ai-card {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
-      border: 1px solid rgba(255,255,255,0.2);
-    }
+    .ai-card { border: 1px solid #c05fbb !important; }
 
     .ai-header {
       display: flex;
@@ -156,10 +169,7 @@
     }
 
     /* Прогноз */
-    .forecast-card {
-      background: rgba(255, 152, 0, 0.15);
-      border-left: 4px solid #ff9800;
-    }
+    .forecast-card { border: 1px solid #ff9800 !important; }
 
     .forecast-text {
       color: #ffe0b2;
@@ -168,11 +178,11 @@
 
     /* Упражнения */
     .exercise-card {
-      background: rgba(255,255,255,0.08);
+      background: #2C3E50;
       border-radius: 20px;
       padding: 1.5rem;
       margin-bottom: 1.2rem;
-      border: 1px solid rgba(80, 210, 180, 0.25);
+      border: 1px solid #ff9800 !important;
     }
 
     .exercise-header {
@@ -204,7 +214,6 @@
       font-size: 0.7rem;
       color: #8bc34a;
     }
-
     .exercise-desc {
       color: rgba(210, 240, 225, 0.85);
       font-size: 0.9rem;
@@ -283,18 +292,23 @@
       position: fixed;
       bottom: 30px;
       right: 30px;
-      width: 60px;
-      height: 60px;
+      width: 80px; /* Было 60-70 */
+      height: 80px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #c05fbb, #ffaa9d);
-      border: none;
-      font-size: 28px;
+      border: 2px solid rgba(255,255,255,0.4);
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       z-index: 100;
-      transition: transform 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
     }
-
+    .motivation-btn img {
+      width: 80px;         /* Увеличили размер картинки внутри */
+      height: auto;
+      display: block;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+    }
     .motivation-btn:hover {
       transform: scale(1.05);
     }
@@ -362,11 +376,15 @@
 </head>
 <body>
   <div class="profile-container">
-    
+
     <!-- Шапка с приветствием -->
     <div class="card" style="text-align: center;">
-      <h2 style="color: #eefaf5; margin-bottom: 1rem;">Привет, {{ user.full_name|default:user.username }}! 🐧</h2>
-      
+      <img src="{% static 'images/ham.png' %}" class="ham-profile-header" alt="Mascot">
+
+      <h2 style="color: #eefaf5; margin-bottom: 1rem;">
+        Привет, {{ user.full_name|default:user.username }}!
+      </h2>
+
       <div class="stats-row">
         <div class="stat-badge">🏆 Уровень {{ stats.level }}</div>
         <div class="stat-badge">⭐ {{ stats.total_xp }} XP</div>
@@ -489,7 +507,9 @@
   </div>
 
   <!-- Кнопка мотивации -->
-  <button class="motivation-btn" id="motivationBtn">🐧</button>
+  <button class="motivation-btn" id="motivationBtn">
+    <img src="{% static 'images/ham.png' %}" alt="Motivation Hamster">
+  </button>
 
   <!-- Модальное окно мотивации -->
   <div id="motivationModal" style="display: none; position: fixed; bottom: 100px; right: 30px; width: 280px; background: #2C3E50; border-radius: 20px; padding: 1.2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.4); z-index: 101; border: 1px solid rgba(80,210,180,0.3);">
@@ -502,7 +522,7 @@
     // График
     const chartData = {{ chart_data|safe }};
     const ctx = document.getElementById('progressChart').getContext('2d');
-    
+
     new Chart(ctx, {
       type: 'line',
       data: {
@@ -533,12 +553,12 @@
         responsive: true,
         maintainAspectRatio: true,
         plugins: {
-          legend: { 
+          legend: {
             labels: { color: '#eefaf5' }
           },
-          tooltip: { 
-            callbacks: { 
-              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y} ${chartData.unit || ''}` 
+          tooltip: {
+            callbacks: {
+              label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y} ${chartData.unit || ''}`
             }
           }
         },
@@ -552,7 +572,7 @@
             min: 0,
             max: 30
           },
-          y: { 
+          y: {
             title: { display: true, text: 'Значение', color: '#80deea' },
             ticks: { color: '#eefaf5' },
             min: chartData.baseline,

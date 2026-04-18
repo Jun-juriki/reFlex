@@ -21,6 +21,7 @@
       padding: 2rem 1.5rem;
       position: relative;
       overflow-x: hidden;
+      overflow-y: auto;
     }
 
     body::before {
@@ -38,7 +39,7 @@
 
     body::after {
       content: '';
-      position: absolute;
+      position: fixed;
       width: 45vw;
       height: 45vw;
       background: radial-gradient(circle, rgba(200, 100, 200, 0.2) 0%, rgba(90, 50, 130, 0) 70%);
@@ -85,7 +86,7 @@
       margin-bottom: 1.8rem;
     }
 
-    /* Форма */
+    /* Форма — стили как на странице регистрации */
     .form-group {
       margin-bottom: 1.2rem;
     }
@@ -96,7 +97,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #b4f0e0;
+      color: #B2F0E0;
       margin-bottom: 0.4rem;
     }
 
@@ -104,11 +105,11 @@
     .form-group textarea,
     .form-group select {
       width: 100%;
-      background: rgba(10, 25, 22, 0.65);
-      border: 1px solid rgba(70, 180, 160, 0.5);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(80, 210, 180, 0.3);
       border-radius: 14px;
-      padding: 0.85rem 1.2rem;
-      font-size: 1rem;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
       color: #eefaf5;
       transition: all 0.2s ease;
       outline: none;
@@ -118,14 +119,14 @@
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
-      border-color: #d06bc0;
-      box-shadow: 0 0 0 3px rgba(208, 107, 192, 0.25);
-      background: rgba(12, 28, 25, 0.85);
+      border-color: #c05fbb;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 3px rgba(192, 95, 187, 0.2);
     }
 
     .form-group input::placeholder,
     .form-group textarea::placeholder {
-      color: rgba(140, 190, 175, 0.5);
+      color: rgba(180, 230, 210, 0.4);
     }
 
     .form-row {
@@ -161,8 +162,9 @@
 
     /* Результат */
     .result-card {
-      background: rgba(33, 150, 243, 0.15);
-      border-left: 4px solid #42a5f5;
+      background: #2C3E50;
+      border: 2px solid #3cb371;
+      box-shadow: 0 0 0 2px rgba(60, 179, 113, 0.3), 0 25px 40px -12px rgba(0, 0, 0, 0.4);
     }
 
     .goal-text {
@@ -258,10 +260,13 @@
 </head>
 <body>
   <div class="container">
-    
+
     {% if not success %}
     <!-- ФОРМА АНКЕТЫ -->
     <div class="card">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <img src="/static/images/ham.png" alt="ReFlex" style="width: 70px; height: auto; border-radius: 20px;">
+      </div>
       <h2>Медицинская анкета</h2>
       <div class="card-subtitle">Заполните данные для формирования SMART-цели</div>
 
@@ -312,6 +317,9 @@
     {% else %}
     <!-- РЕЗУЛЬТАТ: SMART-цель и программа -->
     <div class="card result-card">
+      <div style="text-align: center; margin-bottom: 1rem;">
+        <img src="/static/images/ham.png" alt="ReFlex" style="width: 60px; height: auto; border-radius: 20px;">
+      </div>
       <h2>✨ Ваша SMART-цель сформирована</h2>
       <div class="goal-text">{{ profile.goal_text }}</div>
 
