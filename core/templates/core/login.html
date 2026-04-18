@@ -13,7 +13,6 @@
 
     body {
       min-height: 100vh;
-      /* Фон — глубокая изумрудно-бирюзовая гамма */
       background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
       display: flex;
@@ -24,7 +23,6 @@
       overflow-x: hidden;
     }
 
-    /* Декоративные розово-фиолетовые абстрактные пятна */
     body::before {
       content: '';
       position: absolute;
@@ -51,13 +49,11 @@
       z-index: 0;
     }
 
-    /* Карточка входа */
     .login-card {
       position: relative;
       z-index: 2;
       width: 100%;
       max-width: 460px;
-      /* Левая граница находится по центру страницы — вы можете настроить это значение */
       margin-left: 30%;
       background: #2C3E50;
       backdrop-filter: blur(14px);
@@ -68,7 +64,6 @@
       border: 1px solid rgba(70, 200, 170, 0.3);
     }
 
-    /* заголовок и описание */
     .brand {
       text-align: center;
       margin-bottom: 2rem;
@@ -91,14 +86,12 @@
       font-weight: 400;
     }
 
-    /* форма */
     .login-form {
       display: flex;
       flex-direction: column;
       gap: 1.25rem;
     }
 
-    /* группы полей */
     .input-group {
       display: flex;
       flex-direction: column;
@@ -115,7 +108,6 @@
       margin-left: 0.25rem;
     }
 
-    /* поля ввода */
     .input-group input {
       background: rgba(10, 25, 22, 0.65);
       border: 1px solid rgba(70, 180, 160, 0.6);
@@ -142,7 +134,6 @@
       font-size: 0.9rem;
     }
 
-    /* дополнительные опции (запомнить меня и забыли пароль) */
     .form-options {
       display: flex;
       justify-content: space-between;
@@ -188,7 +179,6 @@
       border-bottom-color: #e08ed0;
     }
 
-    /* кнопка входа */
     .login-btn {
       margin-top: 0.5rem;
       background: linear-gradient(105deg, #c05fbb, #ffaa9d);
@@ -208,14 +198,12 @@
     .login-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
-      background: linear-gradient(105deg, #cd6fc5, #b77fdf);
     }
 
     .login-btn:active {
       transform: translateY(1px);
     }
 
-    /* сообщение */
     .message {
       margin-top: 1rem;
       text-align: center;
@@ -224,13 +212,6 @@
       border-radius: 10px;
       background: rgba(0, 0, 0, 0.25);
       backdrop-filter: blur(4px);
-      transition: all 0.2s;
-    }
-
-    .message.success {
-      color: #a0f0d0;
-      border-left: 3px solid #8fe0c0;
-      background: rgba(50, 130, 110, 0.4);
     }
 
     .message.error {
@@ -239,7 +220,12 @@
       background: rgba(180, 70, 130, 0.25);
     }
 
-    /* ссылка на регистрацию */
+    .message.success {
+      color: #a0f0d0;
+      border-left: 3px solid #8fe0c0;
+      background: rgba(50, 130, 110, 0.4);
+    }
+
     .footer-note {
       text-align: center;
       margin-top: 1.8rem;
@@ -252,15 +238,12 @@
       text-decoration: none;
       font-weight: 500;
       border-bottom: 1px dashed rgba(210, 110, 190, 0.5);
-      transition: color 0.2s;
     }
 
     .footer-note a:hover {
       color: #f4b0ff;
-      border-bottom-color: #e08ed0;
     }
 
-    /* Адаптивность */
     @media (max-width: 780px) {
       body {
         justify-content: center;
@@ -293,7 +276,6 @@
       }
     }
 
-    /* скролл */
     ::-webkit-scrollbar {
       width: 5px;
     }
@@ -313,8 +295,9 @@
       <p>войдите в свою учётную запись</p>
     </div>
 
-    <form class="login-form" id="loginForm" action="#" method="post">
-        {% csrf_token %}
+    <form class="login-form" method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      
       <div class="input-group">
         <label for="email">Электронная почта</label>
         <input type="email" id="email" name="email" placeholder="hello@example.com" autocomplete="off" required>
@@ -330,11 +313,18 @@
           <input type="checkbox" id="remember" name="remember">
           <label for="remember">Запомнить меня</label>
         </div>
-        <a href="#" id="forgotPassword" class="forgot-link">Забыли пароль?</a>
+        <a href="#" class="forgot-link" onclick="showDemoMessage('🔐 Восстановление пароля (демо-режим)'); return false;">Забыли пароль?</a>
       </div>
 
       <button type="submit" class="login-btn">войти →</button>
-      <div id="formMessage" class="message" style="display: none;"></div>
+      
+      {% if messages %}
+        {% for message in messages %}
+          <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
     </form>
 
     <div class="footer-note">
@@ -343,203 +333,21 @@
   </div>
 
   <script>
-    (function() {
-      const form = document.getElementById('loginForm');
-      const emailInput = document.getElementById('email');
-      const passwordInput = document.getElementById('password');
-      const rememberCheckbox = document.getElementById('remember');
-      const messageDiv = document.getElementById('formMessage');
-
-      function showMessage(text, type) {
-        messageDiv.style.display = 'block';
-        messageDiv.textContent = text;
-        messageDiv.className = `message ${type}`;
-        setTimeout(() => {
-          if (messageDiv.style.display === 'block') {
-            messageDiv.style.opacity = '0';
-            setTimeout(() => {
-              if (messageDiv.style.opacity === '0') {
-                messageDiv.style.display = 'none';
-                messageDiv.style.opacity = '';
-              }
-            }, 200);
-          }
-        }, 3800);
-        messageDiv.style.opacity = '1';
+    function showDemoMessage(msg) {
+      // Проверяем, есть ли уже блок сообщений
+      let msgDiv = document.querySelector('.message');
+      if (!msgDiv) {
+        msgDiv = document.createElement('div');
+        msgDiv.className = 'message success';
+        const form = document.querySelector('.login-form');
+        form.appendChild(msgDiv);
       }
-
-      function resetMessage() {
-        messageDiv.style.display = 'none';
-        messageDiv.style.opacity = '';
-        messageDiv.className = 'message';
-        messageDiv.textContent = '';
-      }
-
-      function validateForm() {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-
-        if (!email) {
-          showMessage('Введите адрес электронной почты.', 'error');
-          emailInput.focus();
-          return false;
-        }
-        const emailPattern = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-        if (!emailPattern.test(email)) {
-          showMessage('Пожалуйста, введите корректный email (например, name@domain.com).', 'error');
-          emailInput.focus();
-          return false;
-        }
-
-        if (!password) {
-          showMessage('Введите пароль.', 'error');
-          passwordInput.focus();
-          return false;
-        }
-        if (password.length < 6) {
-          showMessage('Пароль должен содержать не менее 6 символов.', 'error');
-          passwordInput.focus();
-          return false;
-        }
-
-        return true;
-      }
-
-      // Обработчик отправки формы
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        resetMessage();
-
-        if (!validateForm()) {
-          return;
-        }
-
-        const btn = document.querySelector('.login-btn');
-        const originalText = btn.innerText;
-        btn.innerText = 'вход...';
-        btn.disabled = true;
-
-        setTimeout(() => {
-          const email = emailInput.value.trim();
-          const remember = rememberCheckbox.checked;
-          const rememberText = remember ? ' (сеанс будет сохранён)' : '';
-          
-          showMessage(`✅ Добро пожаловать! Вы успешно вошли как ${email}.${rememberText}`, 'success');
-          btn.innerText = originalText;
-          btn.disabled = false;
-
-          // Эффект подсветки карточки
-          const card = document.querySelector('.login-card');
-          card.style.transition = 'box-shadow 0.25s';
-          card.style.boxShadow = '0 0 0 2px rgba(80, 210, 180, 0.5), 0 25px 40px -12px rgba(0,0,0,0.4)';
-          setTimeout(() => {
-            card.style.boxShadow = '0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25)';
-          }, 800);
-        }, 800);
-      });
-
-      // Ссылка "Забыли пароль"
-      const forgotLink = document.getElementById('forgotPassword');
-      if (forgotLink) {
-        forgotLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          showMessage('🔐 Инструкция по восстановлению пароля отправлена на вашу почту (демо-режим).', 'success');
-        });
-      }
-
-      // Ссылка на регистрацию
-      const registerLink = document.getElementById('registerLink');
-      if (registerLink) {
-        registerLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          showMessage('📝 Перенаправление на страницу регистрации (демо-режим).', 'success');
-          // В реальном проекте здесь был бы переход на страницу регистрации
-        });
-      }
-
-      // Живая валидация полей (визуальная обратная связь)
-      const fields = [emailInput, passwordInput];
-      fields.forEach(field => {
-        field.addEventListener('blur', () => {
-          if (field.id === 'email' && field.value.trim() !== '') {
-            const emailPattern = /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/;
-            if (!emailPattern.test(field.value.trim())) {
-              field.style.borderColor = '#e0a0c0';
-            } else {
-              field.style.borderColor = 'rgba(70, 180, 160, 0.7)';
-            }
-          } else if (field.id === 'password' && field.value !== '' && field.value.length < 6) {
-            field.style.borderColor = '#e0a0c0';
-          } else {
-            field.style.borderColor = 'rgba(70, 180, 160, 0.6)';
-          }
-        });
-        
-        field.addEventListener('focus', () => {
-          field.style.borderColor = '#d06bc0';
-          field.style.boxShadow = '0 0 0 2px rgba(208, 107, 192, 0.25)';
-        });
-        
-        field.addEventListener('input', () => {
-          if (field.style.borderColor === '#e0a0c0' && 
-              ((field.id === 'email' && /^[^\s@]+@([^\s@.,]+\.)+[^\s@.,]{2,}$/.test(field.value.trim())) ||
-               (field.id === 'password' && field.value.length >= 6))) {
-            field.style.borderColor = 'rgba(70, 180, 160, 0.7)';
-          } else if (field.style.borderColor === '#e0a0c0') {
-            // сохраняем цвет ошибки
-          } else {
-            field.style.borderColor = 'rgba(70, 180, 160, 0.6)';
-          }
-        });
-      });
-
-      // Эффект для чекбокса при клике
-      rememberCheckbox.addEventListener('change', () => {
-        if (rememberCheckbox.checked) {
-          rememberCheckbox.style.boxShadow = '0 0 0 2px #cf8fcf';
-          setTimeout(() => {
-            rememberCheckbox.style.boxShadow = '';
-          }, 300);
-        }
-      });
-
-      // Если есть сохранённые данные в localStorage (демо-функция "запомнить меня")
-      // Простая имитация: при загрузке страницы, если был выбран "запомнить меня" в прошлый раз
-      // Для демонстрации просто загружаем последний email, если он сохранён
-      const savedEmail = localStorage.getItem('remembered_email');
-      if (savedEmail) {
-        emailInput.value = savedEmail;
-        rememberCheckbox.checked = true;
-        showMessage('🔓 Обнаружены сохранённые данные для входа.', 'success');
-        setTimeout(() => {
-          if (messageDiv.style.display === 'block') {
-            messageDiv.style.opacity = '0';
-            setTimeout(() => {
-              if (messageDiv.style.opacity === '0') {
-                messageDiv.style.display = 'none';
-                messageDiv.style.opacity = '';
-              }
-            }, 1500);
-          }
-        }, 2000);
-      }
-
-      // При успешном входе с чекбоксом "запомнить меня" сохраняем email
-      // Добавляем обработчик в уже существующий submit (расширяем логику)
-      const originalSubmitHandler = form.onsubmit;
-      form.addEventListener('submit', function(e) {
-        // Не перезаписываем, а дополняем — используем флаг, чтобы не дублировать
-        if (window._loginExtraProcessed) return;
-        window._loginExtraProcessed = true;
-        setTimeout(() => { window._loginExtraProcessed = false; }, 500);
-        
-        if (validateForm() && rememberCheckbox.checked) {
-          localStorage.setItem('remembered_email', emailInput.value.trim());
-        } else if (!rememberCheckbox.checked) {
-          localStorage.removeItem('remembered_email');
-        }
-      });
-    })();
+      msgDiv.textContent = msg;
+      msgDiv.style.display = 'block';
+      setTimeout(() => {
+        msgDiv.style.display = 'none';
+      }, 3000);
+    }
   </script>
 </body>
 </html>

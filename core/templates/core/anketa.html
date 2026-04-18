@@ -13,15 +13,16 @@
 
     body {
       min-height: 100vh;
-      background: radial-gradient(circle at 10% 30%, #1a5a4f, #0e3f38);
+      background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 2rem 1.5rem;
       position: relative;
       overflow-x: hidden;
-      overflow-y: auto;  /* единый скролл всей страницы */
     }
 
-    /* Декоративные розово-фиолетовые пятна */
     body::before {
       content: '';
       position: absolute;
@@ -48,524 +49,293 @@
       z-index: 0;
     }
 
-    /* Основной контейнер — без внутреннего скролла, просто блок */
-    .main-container {
-      max-width: 680px;
-      margin: 0 auto;
+    .container {
       position: relative;
       z-index: 2;
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
     }
 
-    /* Карточка анкеты */
-    .anketa-card {
-      background: rgba(18, 30, 28, 0.75);
+    /* Карточка */
+    .card {
+      background: #2C3E50;
       backdrop-filter: blur(14px);
-      border-radius: 24px;
+      border-radius: 28px;
       padding: 2rem;
       box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
       border: 1px solid rgba(70, 200, 170, 0.3);
-      margin-bottom: 2rem;
     }
 
-    /* Заголовок */
-    .anketa-card h2 {
+    .card h2 {
       font-size: 1.6rem;
-      font-weight: 600;
+      font-weight: 700;
       background: linear-gradient(135deg, #b2f0e0, #78e0c8);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
     }
 
-    .subhead {
+    .card-subtitle {
+      text-align: center;
       color: rgba(180, 230, 210, 0.7);
       font-size: 0.85rem;
-      margin-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(80, 210, 180, 0.2);
-      padding-bottom: 0.75rem;
+      margin-bottom: 1.8rem;
     }
 
     /* Форма */
-    .anketa-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
     .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
+      margin-bottom: 1.2rem;
     }
 
     .form-group label {
-      font-size: 0.8rem;
-      font-weight: 500;
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: #b4f0e0;
-      opacity: 0.9;
+      margin-bottom: 0.4rem;
     }
 
-    .form-group input, 
+    .form-group input,
     .form-group textarea,
     .form-group select {
+      width: 100%;
       background: rgba(10, 25, 22, 0.65);
       border: 1px solid rgba(70, 180, 160, 0.5);
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      font-size: 0.95rem;
-      font-weight: 450;
+      border-radius: 14px;
+      padding: 0.85rem 1.2rem;
+      font-size: 1rem;
       color: #eefaf5;
-      transition: all 0.2s ease-out;
+      transition: all 0.2s ease;
       outline: none;
       font-family: inherit;
-      backdrop-filter: blur(4px);
-      width: 100%;
     }
 
-    .form-group textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    .form-group input:focus, 
+    .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
       border-color: #d06bc0;
-      box-shadow: 0 0 0 3px rgba(208, 107, 192, 0.3);
+      box-shadow: 0 0 0 3px rgba(208, 107, 192, 0.25);
       background: rgba(12, 28, 25, 0.85);
     }
 
     .form-group input::placeholder,
     .form-group textarea::placeholder {
       color: rgba(140, 190, 175, 0.5);
-      font-size: 0.85rem;
     }
 
-    /* Два поля в ряд */
-    .row-group {
+    .form-row {
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
     }
 
-    .row-group .form-group {
+    .form-row .form-group {
       flex: 1;
       min-width: 120px;
     }
 
-    /* Кнопка отправки */
-    .submit-btn {
-      margin-top: 0.5rem;
-      background: linear-gradient(105deg, #c05fbb, #aa6fcf);
+    /* Кнопка */
+    .btn-submit {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
       border: none;
-      padding: 1rem 1.5rem;
-      border-radius: 14px;
-      font-weight: 600;
+      border-radius: 16px;
+      font-weight: 700;
       font-size: 1rem;
       color: white;
       cursor: pointer;
       transition: transform 0.15s ease, box-shadow 0.2s;
-      box-shadow: 0 5px 12px rgba(160, 70, 150, 0.3);
-      font-family: inherit;
+      margin-top: 0.5rem;
     }
 
-    .submit-btn:hover {
+    .btn-submit:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
-      background: linear-gradient(105deg, #cd6fc5, #b77fdf);
+      box-shadow: 0 10px 20px rgba(190, 90, 170, 0.4);
     }
 
-    .submit-btn:active {
-      transform: translateY(1px);
-    }
-
-    /* Результат (изначально скрыт) */
+    /* Результат */
     .result-card {
-      background: rgba(18, 30, 28, 0.75);
-      backdrop-filter: blur(14px);
-      border-radius: 24px;
-      padding: 1.8rem;
-      border: 1px solid rgba(70, 200, 170, 0.3);
-      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s ease;
-      margin-bottom: 2rem;
-    }
-
-    .result-title {
-      color: #b2f0e0;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      background: rgba(33, 150, 243, 0.15);
+      border-left: 4px solid #42a5f5;
     }
 
     .goal-text {
-      background: rgba(10, 25, 22, 0.6);
-      padding: 1.2rem;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
       border-radius: 16px;
-      border-left: 4px solid #c05fbb;
-      color: #eefaf5;
       font-size: 1rem;
       line-height: 1.5;
-      margin-bottom: 1.5rem;
+      color: #eefaf5;
+      margin: 1rem 0;
     }
 
-    .section-title {
-      color: #b4f0e0;
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin: 1.25rem 0 0.75rem 0;
-    }
-
-    .training-list {
+    .program-list {
       list-style: none;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.8rem;
+      margin: 1rem 0;
     }
 
-    .training-item {
-      background: rgba(10, 25, 22, 0.6);
-      border-radius: 14px;
+    .program-item {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
       padding: 1rem;
-      border-left: 4px solid #78e0c8;
-      transition: transform 0.2s;
+      margin-bottom: 1rem;
+      border-left: 3px solid #4caf50;
     }
 
-    .training-item:hover {
-      transform: translateX(4px);
-      background: rgba(18, 30, 28, 0.8);
-    }
-
-    .training-name {
+    .program-name {
       color: #b2f0e0;
       font-weight: 700;
       font-size: 1rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.5rem;
     }
 
-    .training-desc {
-      color: rgba(200, 230, 215, 0.8);
+    .program-desc {
+      color: rgba(210, 240, 225, 0.85);
       font-size: 0.85rem;
-      margin-bottom: 0.6rem;
       line-height: 1.4;
+      margin-bottom: 0.5rem;
     }
 
-    .training-level {
+    .program-level {
       display: inline-block;
-      background: rgba(192, 95, 187, 0.2);
-      border: 1px solid rgba(192, 95, 187, 0.5);
+      background: rgba(76, 175, 80, 0.2);
+      padding: 0.2rem 0.8rem;
       border-radius: 20px;
-      padding: 0.25rem 0.8rem;
-      font-size: 0.75rem;
-      color: #e2a0e0;
+      font-size: 0.7rem;
+      color: #8bc34a;
     }
 
-    .profile-link {
+    .btn-profile {
+      display: inline-block;
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(105deg, #4CAF50, #45a049);
+      border: none;
+      border-radius: 16px;
+      font-weight: 700;
+      font-size: 1rem;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: transform 0.15s ease;
+    }
+
+    .btn-profile:hover {
+      transform: translateY(-2px);
+    }
+
+    .back-link {
       display: inline-block;
       margin-top: 1.5rem;
-      padding: 0.9rem 2rem;
-      background: linear-gradient(105deg, #c05fbb, #aa6fcf);
-      color: white;
+      color: rgba(180, 230, 210, 0.7);
       text-decoration: none;
-      border-radius: 14px;
-      font-weight: 600;
-      transition: transform 0.15s, box-shadow 0.2s;
+      font-size: 0.85rem;
       text-align: center;
       width: 100%;
     }
 
-    .profile-link:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(160, 70, 150, 0.4);
+    hr {
+      border: none;
+      height: 1px;
+      background: rgba(80, 210, 180, 0.2);
+      margin: 1rem 0;
     }
 
-    /* Адаптивность */
     @media (max-width: 560px) {
-      .anketa-card, .result-card {
-        padding: 1.5rem;
-      }
-      .row-group {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .anketa-card h2 {
-        font-size: 1.3rem;
-      }
-      body {
-        padding: 1rem;
-      }
-    }
-
-    /* Стили для кастомного скролла всей страницы */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #13352e;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #ba78c4;
-      border-radius: 10px;
+      body { padding: 1rem; }
+      .card { padding: 1.5rem; }
+      .form-row { flex-direction: column; gap: 0; }
+      .form-row .form-group { min-width: auto; }
     }
   </style>
 </head>
 <body>
-  <div class="main-container">
-    <!-- Карточка с формой -->
-    <div class="anketa-card">
+  <div class="container">
+    
+    {% if not success %}
+    <!-- ФОРМА АНКЕТЫ -->
+    <div class="card">
       <h2>Медицинская анкета</h2>
-      <div class="subhead">Заполняется лечащим врачом для формирования персонализированного пути восстановления</div>
+      <div class="card-subtitle">Заполните данные для формирования SMART-цели</div>
 
-      <form id="medicalForm" class="anketa-form">
+      <form method="post">
+        {% csrf_token %}
+
         <div class="form-group">
           <label>Основной диагноз</label>
-          <input type="text" id="diagnosis" name="diagnosis" placeholder="Например: Ишемический инсульт" required>
+          <input type="text" name="diagnosis" placeholder="Например: Ишемический инсульт" required>
         </div>
 
         <div class="form-group">
           <label>Уточнение / Анамнез</label>
-          <textarea id="diagnosisDetail" name="diagnosis_detail" placeholder="Дополнительные сведения о состоянии, перенесённые операции, хронические заболевания..."></textarea>
+          <textarea name="diagnosis_detail" rows="3" placeholder="Дополнительные сведения о состоянии..."></textarea>
         </div>
 
         <div class="form-group">
           <label>Тип ограничения</label>
-          <input type="text" id="limitationType" name="limitation_type" placeholder="Например: Нарушение ходьбы, снижение мелкой моторики" required>
+          <input type="text" name="limitation_type" placeholder="Например: Ходьба, мелкая моторика" required>
         </div>
 
-        <div class="row-group">
+        <div class="form-row">
           <div class="form-group">
-            <label>Текущий показатель (м/балл)</label>
-            <input type="number" step="0.1" id="baselineValue" name="baseline_value" placeholder="0.0" required>
+            <label>Текущий показатель</label>
+            <input type="number" step="0.1" name="baseline_value" placeholder="0.0" required>
           </div>
           <div class="form-group">
             <label>Условия замера</label>
-            <input type="text" id="baselineCondition" name="baseline_condition" placeholder="Например: С опорой на ходунки, без помощи">
+            <input type="text" name="baseline_condition" placeholder="С опорой на ходунки">
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="generateBtn">Сгенерировать путь восстановления →</button>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Единицы измерения</label>
+            <input type="text" name="baseline_unit" placeholder="м, мин, баллы" value="м">
+          </div>
+          <div class="form-group">
+            <label>Срок достижения (дней)</label>
+            <input type="number" name="target_days" value="28" min="7" max="90">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">✨ Сгенерировать путь восстановления</button>
       </form>
     </div>
 
-    <!-- Блок для отображения результата (изначально пуст) -->
-    <div id="resultContainer" style="display: none;"></div>
+    {% else %}
+    <!-- РЕЗУЛЬТАТ: SMART-цель и программа -->
+    <div class="card result-card">
+      <h2>✨ Ваша SMART-цель сформирована</h2>
+      <div class="goal-text">{{ profile.goal_text }}</div>
+
+      <h4 style="color: #b2f0e0; margin: 1.5rem 0 0.5rem 0;">🏋️ Программа тренировок</h4>
+      
+      <ul class="program-list">
+        {% for item in profile.training_program %}
+        <li class="program-item">
+          <div class="program-name">{{ item.name }}</div>
+          <div class="program-desc">{{ item.description }}</div>
+          <div class="program-level">⭐ Старт: {{ item.progression.level_1 }}</div>
+        </li>
+        {% empty %}
+        <li style="color: rgba(210, 240, 225, 0.7); text-align: center; padding: 1rem;">Программа формируется...</li>
+        {% endfor %}
+      </ul>
+
+      <hr>
+
+      <a href="{% url 'profile' %}" class="btn-profile">🚀 Перейти в личный кабинет</a>
+    </div>
+    {% endif %}
+
+    <a href="{% url 'home' %}" class="back-link">← На главную</a>
   </div>
-
-  <script>
-    (function() {
-      const form = document.getElementById('medicalForm');
-      const resultContainer = document.getElementById('resultContainer');
-
-      // Функция генерации SMART-цели на основе введённых данных
-      function generateSmartGoal(formData) {
-        const diagnosis = formData.diagnosis || 'заболевание';
-        const limitation = formData.limitationType || 'функциональное ограничение';
-        const baseline = formData.baselineValue ? parseFloat(formData.baselineValue) : null;
-        const condition = formData.baselineCondition || 'текущее состояние';
-        
-        let targetText = '';
-        let baselineText = '';
-        
-        if (baseline !== null && !isNaN(baseline)) {
-          const target = (baseline * 1.4).toFixed(1);
-          baselineText = `${baseline} ед.`;
-          targetText = `${target} ед.`;
-        } else {
-          baselineText = 'текущего уровня';
-          targetText = 'значительного улучшения';
-        }
-        
-        const goals = [
-          `Улучшить показатель "${limitation.toLowerCase()}" с ${baselineText} до ${targetText} в течение 8 недель, выполняя ежедневные реабилитационные упражнения по 20–25 минут.`,
-          `Достичь стабильного прогресса в восстановлении после ${diagnosis.toLowerCase()}: увеличить функциональный показатель с ${baselineText} до ${targetText} за 6 недель при регулярных тренировках (${condition.toLowerCase()}).`,
-          `Снизить выраженность ${limitation.toLowerCase()} на 40% за 2 месяца, закрепив результат в повседневной активности (исходно: ${baselineText}, условия: ${condition.toLowerCase()}).`
-        ];
-        
-        return goals[Math.floor(Math.random() * goals.length)];
-      }
-      
-      // Генерация программы тренировок (3 упражнения)
-      function generateTrainingProgram(limitation, baselineValue, condition) {
-        const limitationLower = limitation.toLowerCase();
-        const hasWalking = limitationLower.includes('ходьб') || limitationLower.includes('ход');
-        const hasMotor = limitationLower.includes('моторик') || limitationLower.includes('руки') || limitationLower.includes('мелк');
-        
-        let program = [];
-        
-        if (hasWalking) {
-          program.push({
-            name: 'Ходьба с контролем равновесия',
-            description: 'Упражнения на развитие устойчивости и координации, имитация шага с опорой на поручень. Контроль дыхания и ритма.',
-            level: `Старт: ${baselineValue ? baselineValue + ' м в медленном темпе' : '3–5 минут ходьбы с поддержкой'}`
-          });
-          program.push({
-            name: 'Укрепление мышц нижних конечностей',
-            description: 'Подъёмы на носки, сгибание ног в положении сидя, мини-приседания с опорой на стул.',
-            level: `Старт: 8–10 повторений, 2 подхода`
-          });
-        } else if (hasMotor) {
-          program.push({
-            name: 'Мелкая моторика и ловкость',
-            description: 'Перекладывание мелких предметов, сжатие кистевого эспандера, пальчиковая гимнастика.',
-            level: `Старт: 2 подхода по 10 движений`
-          });
-          program.push({
-            name: 'Координация и точность',
-            description: 'Упражнения на захват и удержание предметов разной формы, рисование по точкам.',
-            level: `Старт: 5–7 минут ежедневно`
-          });
-        } else {
-          program.push({
-            name: 'Общеукрепляющая тренировка',
-            description: 'Комплекс упражнений на основные группы мышц с акцентом на общую выносливость.',
-            level: `Старт: 10–12 повторений, 2 подхода`
-          });
-          program.push({
-            name: 'Дыхательная гимнастика и релаксация',
-            description: 'Упражнения на глубокое диафрагмальное дыхание, снижение мышечного напряжения.',
-            level: `Старт: 5 минут в день`
-          });
-        }
-        
-        program.push({
-          name: 'Тренировка выносливости',
-          description: `Постепенное увеличение нагрузки с учётом текущего состояния (${condition || 'щадящий режим'}). Контроль пульса и самочувствия.`,
-          level: `Старт: ${baselineValue ? baselineValue + ' ед. активности' : 'минимальная нагрузка'}`
-        });
-        
-        return program;
-      }
-      
-      // Отображение результата и плавный скролл к нему
-      function displayResult(goalText, trainingProgram) {
-        const resultHtml = `
-          <div class="result-card" id="resultCard">
-            <div class="result-title">
-              <span>✨</span> Ваша SMART-цель сформирована
-            </div>
-            <div class="goal-text">
-              ${escapeHtml(goalText)}
-            </div>
-            <div class="section-title">📋 Программа тренировок</div>
-            <ul class="training-list">
-              ${trainingProgram.map(item => `
-                <li class="training-item">
-                  <div class="training-name">${escapeHtml(item.name)}</div>
-                  <div class="training-desc">${escapeHtml(item.description)}</div>
-                  <div class="training-level">${escapeHtml(item.level)}</div>
-                </li>
-              `).join('')}
-            </ul>
-            <a href="#" class="profile-link" id="profileRedirect">Перейти в личный кабинет →</a>
-          </div>
-        `;
-        
-        resultContainer.innerHTML = resultHtml;
-        resultContainer.style.display = 'block';
-        
-        const profileLink = document.getElementById('profileRedirect');
-        if (profileLink) {
-          profileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('🔮 Демо-режим: переход в личный кабинет (симуляция). В реальном проекте здесь будет URL профиля.');
-          });
-        }
-        
-        // Плавный скролл всей страницы к результату
-        setTimeout(() => {
-          const resultCard = document.getElementById('resultCard');
-          if (resultCard) {
-            resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
-      
-      function escapeHtml(str) {
-        if (!str) return '';
-        return str
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-      
-      // Обработчик отправки формы
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const diagnosis = document.getElementById('diagnosis').value.trim();
-        const diagnosisDetail = document.getElementById('diagnosisDetail').value.trim();
-        const limitationType = document.getElementById('limitationType').value.trim();
-        const baselineValue = document.getElementById('baselineValue').value;
-        const baselineCondition = document.getElementById('baselineCondition').value.trim();
-        
-        if (!diagnosis) {
-          alert('Пожалуйста, укажите основной диагноз.');
-          document.getElementById('diagnosis').focus();
-          return;
-        }
-        if (!limitationType) {
-          alert('Пожалуйста, укажите тип ограничения.');
-          document.getElementById('limitationType').focus();
-          return;
-        }
-        if (!baselineValue) {
-          alert('Укажите текущий показатель (м/балл).');
-          document.getElementById('baselineValue').focus();
-          return;
-        }
-        
-        const baselineNum = parseFloat(baselineValue);
-        if (isNaN(baselineNum) || baselineNum < 0) {
-          alert('Текущий показатель должен быть положительным числом.');
-          return;
-        }
-        
-        const formData = {
-          diagnosis: diagnosis,
-          diagnosisDetail: diagnosisDetail,
-          limitationType: limitationType,
-          baselineValue: baselineNum,
-          baselineCondition: baselineCondition || 'стандартные условия'
-        };
-        
-        const btn = document.getElementById('generateBtn');
-        const originalText = btn.innerText;
-        btn.innerText = 'Генерация...';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-          const smartGoal = generateSmartGoal(formData);
-          const trainingProgram = generateTrainingProgram(
-            limitationType,
-            baselineNum,
-            baselineCondition || 'щадящий режим'
-          );
-          
-          displayResult(smartGoal, trainingProgram);
-          
-          btn.innerText = originalText;
-          btn.disabled = false;
-          
-          const resultCard = document.querySelector('.result-card');
-          if (resultCard) {
-            resultCard.style.transition = 'box-shadow 0.3s';
-            resultCard.style.boxShadow = '0 0 0 2px rgba(192, 95, 187, 0.5), 0 25px 40px -12px rgba(0,0,0,0.4)';
-            setTimeout(() => {
-              if (resultCard) resultCard.style.boxShadow = '';
-            }, 600);
-          }
-        }, 600);
-      });
-    })();
-  </script>
 </body>
 </html>

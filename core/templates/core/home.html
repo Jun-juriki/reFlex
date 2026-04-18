@@ -67,7 +67,7 @@
       text-align: center;
     }
 
-    /* Заголовок — без эмодзи */
+    /* Заголовок */
     .welcome-card h1 {
       background: linear-gradient(135deg, #b2f0e0, #78e0c8);
       background-clip: text;
@@ -106,69 +106,49 @@
       text-decoration: none;
       text-align: center;
       font-family: inherit;
+      border: none;
     }
 
-    /* Кнопка входа — фиолетовый градиент */
+    /* Кнопка входа */
     .btn-login {
       background: linear-gradient(105deg, #c05fbb, #ffaa9d);
-      border: none;
       color: white;
       box-shadow: 0 5px 12px rgba(160, 70, 150, 0.3);
-      margin-right: 15px;
     }
 
     .btn-login:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
-      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
     }
 
-    /* Кнопка регистрации — такая же фиолетовая обводка */
+    /* Кнопка регистрации с градиентной обводкой */
     .btn-register {
       position: relative;
       background: transparent;
-      color: #b2f0e0;
-      border: none;
-      z-index: 1;
-    }
-
-    .btn-register {
-      background: transparent;
-      border: none;
       color: #ffffff;
-      padding: 15px 40px;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      position: relative;
       z-index: 1;
-      transition: transform 0.15s ease;
     }
 
-        .btn-register::before {
+    .btn-register::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: 10px;
       padding: 2px;
       background: linear-gradient(105deg, #c05fbb, #ffaa9d);
-      -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-      mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       z-index: -1;
       pointer-events: none;
     }
 
-        .btn-register:hover {
+    .btn-register:hover {
       transform: translateY(-2px);
     }
 
-        .btn-register:hover::before {
+    .btn-register:hover::before {
       background: linear-gradient(105deg, #cd6fc5, #b77fdf);
     }
 
@@ -194,11 +174,9 @@
       }
       .btn {
         width: 100%;
-        margin-right: 0 !important;
       }
     }
 
-    /* скролл */
     ::-webkit-scrollbar {
       width: 5px;
     }
@@ -217,8 +195,8 @@
     <div class="subtitle">Твой путь к восстановлению через игру</div>
 
     <div class="action-buttons">
-      <a href="login" class="btn btn-login">Вход</a>
-      <a href="register" class="btn btn-register">Регистрация</a>
+      <a href="{% url 'login' %}" class="btn btn-login">Вход</a>
+      <a href="{% url 'register' %}" class="btn btn-register">Регистрация</a>
     </div>
   </div>
 </body>

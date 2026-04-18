@@ -61,7 +61,6 @@
       padding: 2rem;
       box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
       border: 1px solid rgba(70, 200, 170, 0.35);
-      transition: all 0.2s ease;
     }
 
     .exercise-card h2 {
@@ -146,7 +145,7 @@
       font-weight: 700;
       font-size: 1rem;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.2s, opacity 0.2s;
+      transition: transform 0.15s ease, box-shadow 0.2s;
       font-family: inherit;
       width: 100%;
     }
@@ -157,7 +156,7 @@
       box-shadow: 0 5px 12px rgba(46, 139, 86, 0.3);
     }
 
-    .btn-success:hover:not(:disabled) {
+    .btn-success:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(46, 139, 86, 0.4);
     }
@@ -168,18 +167,13 @@
       box-shadow: 0 5px 12px rgba(160, 70, 150, 0.3);
     }
 
-    .btn-danger:hover:not(:disabled) {
+    .btn-danger:hover {
       transform: translateY(-2px);
       box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
     }
 
-    .btn:active:not(:disabled) {
+    .btn:active {
       transform: translateY(1px);
-    }
-
-    .btn:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
     }
 
     .back-link {
@@ -196,44 +190,6 @@
     .back-link:hover {
       color: #e2a0e0;
       border-bottom-color: #e08ed0;
-    }
-
-    .result-message {
-      margin-top: 1.2rem;
-      padding: 0.9rem;
-      border-radius: 16px;
-      text-align: center;
-      font-size: 0.9rem;
-      backdrop-filter: blur(4px);
-      transition: all 0.2s;
-    }
-
-    .result-message.success {
-      background: rgba(46, 139, 86, 0.25);
-      border-left: 4px solid #3cb371;
-      color: #c8f0e0;
-    }
-
-    .result-message.error {
-      background: rgba(192, 95, 187, 0.25);
-      border-left: 4px solid #e2a0e0;
-      color: #ffd0f0;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 0.6s linear infinite;
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
     }
 
     @media (max-width: 560px) {
@@ -265,290 +221,34 @@
   </style>
 </head>
 <body>
-  <div class="exercise-card" id="exerciseCard">
-    <!-- Динамический контент будет загружаться через JavaScript / реальный бэкенд -->
-    <h2 id="exerciseName">Загрузка...</h2>
+  <div class="exercise-card">
+    <h2>{{ exercise.name }}</h2>
+    
     <div class="instruction-block">
       <h4>📖 Инструкция</h4>
-      <div id="instructionText" class="instruction-text">
-        <div class="loading-spinner"></div> Загрузка персональных рекомендаций...
-      </div>
+      <div class="instruction-text">{{ exercise.description }}</div>
       <hr>
       <div class="current-load">
         <strong>Текущая нагрузка:</strong>
-        <span id="loadValue" class="load-value">—</span>
+        <span class="load-value">{{ exercise.progression.level_1 }}</span>
       </div>
     </div>
 
-    <div class="action-buttons">
-      <button id="successBtn" class="btn btn-success">✅ Выполнил (Получить XP)</button>
-      <button id="failBtn" class="btn btn-danger">❌ Не справился (+1 страйк)</button>
-    </div>
+    <form method="post" action="{% url 'complete_exercise' idx %}">
+      {% csrf_token %}
+      <div class="action-buttons">
+        <button type="submit" name="status" value="success" class="btn btn-success">
+          ✅ Выполнил (Получить XP)
+        </button>
+        <button type="submit" name="status" value="failed" class="btn btn-danger">
+          ❌ Не справился (+1 страйк)
+        </button>
+      </div>
+    </form>
 
     <div style="text-align: center;">
-      <a href="#" id="backLink" class="back-link">← Вернуться в личный кабинет</a>
+      <a href="{% url 'profile' %}" class="back-link">← Вернуться в личный кабинет</a>
     </div>
-
-    <div id="resultMessage" class="result-message" style="display: none;"></div>
   </div>
-
-  <script>
-    // ---------- РАБОЧАЯ ЛОГИКА С РЕАЛЬНЫМИ API/БЭКЕНДОМ ----------
-    (function() {
-      // Получаем ID упражнения из URL (пример: /exercise/3/ )
-      const pathParts = window.location.pathname.split('/');
-      let exerciseId = null;
-      for (let i = 0; i < pathParts.length; i++) {
-        if (pathParts[i] === 'exercise' && pathParts[i+1] && !isNaN(parseInt(pathParts[i+1]))) {
-          exerciseId = parseInt(pathParts[i+1]);
-          break;
-        }
-      }
-      // Если не нашли, пробуем из GET-параметра ?id=
-      if (!exerciseId) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const idParam = urlParams.get('id');
-        if (idParam && !isNaN(parseInt(idParam))) exerciseId = parseInt(idParam);
-      }
-      // Демо-значение по умолчанию (для тестов, но в реальном проекте всегда берётся из URL)
-      if (!exerciseId) exerciseId = 1;
-
-      // DOM-элементы
-      const exerciseNameEl = document.getElementById('exerciseName');
-      const instructionTextEl = document.getElementById('instructionText');
-      const loadValueEl = document.getElementById('loadValue');
-      const successBtn = document.getElementById('successBtn');
-      const failBtn = document.getElementById('failBtn');
-      const backLink = document.getElementById('backLink');
-      const resultMessageDiv = document.getElementById('resultMessage');
-
-      let currentExerciseData = null;
-
-      function showMessage(text, type) {
-        resultMessageDiv.style.display = 'block';
-        resultMessageDiv.textContent = text;
-        resultMessageDiv.className = `result-message ${type}`;
-        setTimeout(() => {
-          if (resultMessageDiv.style.display === 'block') {
-            resultMessageDiv.style.opacity = '0';
-            setTimeout(() => {
-              if (resultMessageDiv.style.opacity === '0') {
-                resultMessageDiv.style.display = 'none';
-                resultMessageDiv.style.opacity = '';
-              }
-            }, 200);
-          }
-        }, 4000);
-        resultMessageDiv.style.opacity = '1';
-      }
-
-      function setLoading(loading) {
-        if (loading) {
-          successBtn.disabled = true;
-          failBtn.disabled = true;
-          successBtn.style.opacity = '0.7';
-          failBtn.style.opacity = '0.7';
-        } else {
-          successBtn.disabled = false;
-          failBtn.disabled = false;
-          successBtn.style.opacity = '1';
-          failBtn.style.opacity = '1';
-        }
-      }
-
-      // 1. ЗАГРУЗКА ДАННЫХ УПРАЖНЕНИЯ С СЕРВЕРА (реальный API)
-      async function fetchExerciseData() {
-        try {
-          instructionTextEl.innerHTML = '<div class="loading-spinner"></div> Загрузка данных упражнения...';
-          // РЕАЛЬНЫЙ ЗАПРОС К БЭКЕНДУ
-          const response = await fetch(`/api/exercises/${exerciseId}/`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Requested-With': 'XMLHttpRequest'
-            }
-          });
-
-          if (!response.ok) {
-            // Если API не готов — используем fallback (имитация, но в продакшене обработать)
-            if (response.status === 404) {
-              throw new Error('Упражнение не найдено');
-            }
-            throw new Error(`Ошибка загрузки: ${response.status}`);
-          }
-
-          const data = await response.json();
-          currentExerciseData = data;
-          exerciseNameEl.textContent = data.name || 'Упражнение';
-          loadValueEl.textContent = data.current_load || data.progression?.level_1 || 'Средняя';
-          
-          // Отображаем инструкцию (может быть сгенерирована LLM заранее на бэке)
-          if (data.instruction_text) {
-            instructionTextEl.innerHTML = data.instruction_text.replace(/\n/g, '<br>');
-          } else if (data.description) {
-            instructionTextEl.innerHTML = data.description;
-          } else {
-            instructionTextEl.innerHTML = 'Следуйте указаниям врача. Выполняйте упражнение плавно, без резких движений.';
-          }
-          return true;
-        } catch (error) {
-          console.error('fetchExerciseData error:', error);
-          // РЕАЛЬНЫЙ fallback — показываем ошибку, но не блокируем полностью
-          instructionTextEl.innerHTML = '⚠️ Не удалось загрузить инструкцию. Пожалуйста, обновите страницу или обратитесь к администратору.';
-          exerciseNameEl.textContent = 'Упражнение';
-          loadValueEl.textContent = 'Стандартная нагрузка';
-          return false;
-        }
-      }
-
-      // 2. ОТПРАВКА РЕЗУЛЬТАТА ВЫПОЛНЕНИЯ (реальная запись на сервер)
-      async function submitResult(status) {
-        setLoading(true);
-        const btn = status === 'success' ? successBtn : failBtn;
-        const originalText = btn.innerText;
-        btn.innerText = status === 'success' ? 'Отправка...' : 'Отправка...';
-        
-        try {
-          const csrfToken = getCsrfToken();
-          const response = await fetch('/api/exercise-progress/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken,
-              'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: JSON.stringify({
-              exercise_id: exerciseId,
-              status: status,        // 'success' или 'failed'
-              timestamp: new Date().toISOString()
-            })
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Сервер ответил с ошибкой ${response.status}`);
-          }
-
-          const result = await response.json();
-          // Успешная обработка на сервере
-          if (status === 'success') {
-            const xpEarned = result.xp_earned || Math.floor(Math.random() * 30) + 15;
-            showMessage(`✨ Отлично! Вы получили ${xpEarned} XP. Прогресс сохранён. Продолжайте в том же духе! ✨`, 'success');
-            // Обновляем нагрузку, если сервер вернул новый уровень
-            if (result.new_current_load) {
-              loadValueEl.textContent = result.new_current_load;
-            }
-            // Доп. анимация
-            animateCardSuccess();
-          } else {
-            const strikes = result.strikes_added || 1;
-            const advice = result.advice || 'Не сдавайтесь! Попробуйте снова или проконсультируйтесь с врачом.';
-            showMessage(`💪 Вы получили +${strikes} страйк. ${advice}`, 'error');
-            animateCardFail();
-          }
-          
-          // Обновляем данные пользователя (если нужно)
-          if (result.user_stats) {
-            updateUserStatsDisplay(result.user_stats);
-          }
-        } catch (error) {
-          console.error('submitResult error:', error);
-          showMessage(`❌ Ошибка отправки: ${error.message}. Проверьте соединение и попробуйте снова.`, 'error');
-        } finally {
-          btn.innerText = originalText;
-          setLoading(false);
-        }
-      }
-
-      // Получение CSRF-токена из cookie (стандартный Django)
-      function getCsrfToken() {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-          const cookies = document.cookie.split(';');
-          for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, 10) === 'csrftoken=') {
-              cookieValue = decodeURIComponent(cookie.substring(10));
-              break;
-            }
-          }
-        }
-        return cookieValue || '';
-      }
-
-      function animateCardSuccess() {
-        const card = document.querySelector('.exercise-card');
-        card.style.transition = 'box-shadow 0.25s';
-        card.style.boxShadow = '0 0 0 2px rgba(60, 179, 113, 0.6), 0 25px 40px -12px rgba(0,0,0,0.4)';
-        setTimeout(() => { card.style.boxShadow = ''; }, 600);
-      }
-
-      function animateCardFail() {
-        const card = document.querySelector('.exercise-card');
-        card.style.transition = 'box-shadow 0.25s';
-        card.style.boxShadow = '0 0 0 2px rgba(192, 95, 187, 0.6), 0 25px 40px -12px rgba(0,0,0,0.4)';
-        setTimeout(() => { card.style.boxShadow = ''; }, 600);
-      }
-
-      function updateUserStatsDisplay(stats) {
-        // Если нужно обновить где-то на странице (например, счётчик XP в углу) — реализовать
-        console.log('User stats updated:', stats);
-      }
-
-      // Обработчики кнопок
-      successBtn.addEventListener('click', () => submitResult('success'));
-      failBtn.addEventListener('click', () => submitResult('failed'));
-
-      // Назад в личный кабинет (используем Django URL)
-      backLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Реальный переход на страницу профиля
-        window.location.href = '/profile/';
-      });
-
-      // ИНИЦИАЛИЗАЦИЯ: загружаем данные упражнения
-      fetchExerciseData().then(() => {
-        // После загрузки дополнительно можно запросить LLM-инструкцию (если сервер не отдал)
-        if (currentExerciseData && !currentExerciseData.instruction_text) {
-          // Можно запросить генерацию инструкции через отдельный API
-          generateLLMInstruction();
-        }
-      });
-
-      // Функция для генерации инструкции через LLM (реальный эндпоинт)
-      async function generateLLMInstruction() {
-        try {
-          const csrfToken = getCsrfToken();
-          const response = await fetch('/api/generate-instruction/', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-              exercise_id: exerciseId,
-              user_context: {
-                diagnosis: currentExerciseData?.user_diagnosis || null,
-                limitation: currentExerciseData?.limitation_type || null
-              }
-            })
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.instruction) {
-              instructionTextEl.innerHTML = data.instruction.replace(/\n/g, '<br>');
-            }
-          }
-        } catch (e) {
-          console.warn('LLM generation optional, not critical:', e);
-        }
-      }
-
-      // Дополнительно: обработка ошибки сети (показываем пользователю)
-      window.addEventListener('offline', () => {
-        showMessage('⚠️ Потеряно соединение с интернетом. Проверьте сеть.', 'error');
-      });
-    })();
-  </script>
 </body>
 </html>
