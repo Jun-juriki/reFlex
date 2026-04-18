@@ -1,12 +1,225 @@
-<div style="text-align: center; margin-top: 100px; font-family: sans-serif;">
-    <h1>ReFlex 🐧</h1>
-    <p>Твой путь к восстановлению через игру</p>
-    <div style="margin-top: 20px;">
-        <a href="{% url 'login' %}">
-            <button style="padding: 15px 40px; background: #2196F3; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-right: 10px;">Вход</button>
-        </a>
-        <a href="{% url 'register' %}">
-            <button style="padding: 15px 40px; background: #4CAF50; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Регистрация</button>
-        </a>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>ReFlex | Платформа восстановления</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 30%, #B7D8FF, #0e3f38);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Декоративные розово-фиолетовые абстрактные пятна */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(210, 90, 160, 0.22) 0%, rgba(140, 70, 180, 0) 70%);
+      top: -20%;
+      right: -15%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, rgba(200, 100, 200, 0.2) 0%, rgba(90, 50, 130, 0) 70%);
+      bottom: -10%;
+      left: -10%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Карточка приветствия — ПО ЦЕНТРУ */
+    .welcome-card {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      background: #2C3E50;
+      backdrop-filter: blur(14px);
+      border-radius: 16px;
+      padding: 2.5rem 2rem 2.5rem;
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
+      transition: all 0.2s ease;
+      border: 1px solid rgba(70, 200, 170, 0.3);
+      text-align: center;
+    }
+
+    /* Заголовок — без эмодзи */
+    .welcome-card h1 {
+      background: linear-gradient(135deg, #b2f0e0, #78e0c8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 3rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.75rem;
+    }
+
+    /* Подзаголовок */
+    .subtitle {
+      color: rgba(180, 230, 210, 0.85);
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Кнопки */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 40px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s;
+      text-decoration: none;
+      text-align: center;
+      font-family: inherit;
+    }
+
+    /* Кнопка входа — фиолетовый градиент */
+    .btn-login {
+      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
+      border: none;
+      color: white;
+      box-shadow: 0 5px 12px rgba(160, 70, 150, 0.3);
+      margin-right: 15px;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
+      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
+    }
+
+    /* Кнопка регистрации — такая же фиолетовая обводка */
+    .btn-register {
+      position: relative;
+      background: transparent;
+      color: #b2f0e0;
+      border: none;
+      z-index: 1;
+    }
+
+    .btn-register {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      padding: 15px 40px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.15s ease;
+    }
+
+        .btn-register::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      padding: 2px;
+      background: linear-gradient(105deg, #c05fbb, #ffaa9d);
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+        .btn-register:hover {
+      transform: translateY(-2px);
+    }
+
+        .btn-register:hover::before {
+      background: linear-gradient(105deg, #cd6fc5, #b77fdf);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 560px) {
+      .welcome-card {
+        max-width: 400px;
+        padding: 2rem 1.5rem;
+      }
+      .welcome-card h1 {
+        font-size: 2.2rem;
+      }
+      .subtitle {
+        font-size: 0.95rem;
+      }
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .btn {
+        width: 100%;
+        margin-right: 0 !important;
+      }
+    }
+
+    /* скролл */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #13352e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ba78c4;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-card">
+    <h1>ReFlex</h1>
+    <div class="subtitle">Твой путь к восстановлению через игру</div>
+
+    <div class="action-buttons">
+      <a href="login" class="btn btn-login">Вход</a>
+      <a href="register" class="btn btn-register">Регистрация</a>
     </div>
-</div>
+  </div>
+</body>
+</html>

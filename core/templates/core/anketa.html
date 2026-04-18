@@ -1,62 +1,571 @@
-<div style="max-width: 600px; margin: 40px auto; font-family: sans-serif; line-height: 1.6;">
-    {% if not success %}
-    <h2 style="color: #2c3e50;">Медицинская анкета (Заполняет врач)</h2>
-    <form method="post" style="display: flex; flex-direction: column; gap: 15px;">
-        {% csrf_token %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Медицинская анкета | ReFlex</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        <label>Основной диагноз:</label>
-        <input type="text" name="diagnosis" placeholder="Напр: Ишемический инсульт" required style="padding: 10px;">
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 30%, #1a5a4f, #0e3f38);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;  /* единый скролл всей страницы */
+    }
 
-        <label>Уточнение / Анамнез:</label>
-        <textarea name="diagnosis_detail" placeholder="Дополнительные сведения о состоянии" style="padding: 10px; hieght: 80px;"></textarea>
+    /* Декоративные розово-фиолетовые пятна */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(circle, rgba(210, 90, 160, 0.22) 0%, rgba(140, 70, 180, 0) 70%);
+      top: -20%;
+      right: -15%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        <label>Тип ограничения:</label>
-        <input type="text" name="limitation_type" placeholder="Напр: Ходьба, мелкая моторика" required style="padding: 10px;">
+    body::after {
+      content: '';
+      position: absolute;
+      width: 45vw;
+      height: 45vw;
+      background: radial-gradient(circle, rgba(200, 100, 200, 0.2) 0%, rgba(90, 50, 130, 0) 70%);
+      bottom: -10%;
+      left: -10%;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;">
-                <label>Текущий показатель (м/балл):</label>
-                <input type="number" step="0.1" name="baseline_value" placeholder="0.0" required style="width: 100%; padding: 10px;">
-            </div>
-            <div style="flex: 2;">
-                <label>Условия замера:</label>
-                <input type="text" name="baseline_condition" placeholder="Напр: С опорой на ходунки" style="width: 100%; padding: 10px;">
-            </div>
+    /* Основной контейнер — без внутреннего скролла, просто блок */
+    .main-container {
+      max-width: 680px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Карточка анкеты */
+    .anketa-card {
+      background: rgba(18, 30, 28, 0.75);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(80, 210, 180, 0.25);
+      border: 1px solid rgba(70, 200, 170, 0.3);
+      margin-bottom: 2rem;
+    }
+
+    /* Заголовок */
+    .anketa-card h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #b2f0e0, #78e0c8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 0.25rem;
+    }
+
+    .subhead {
+      color: rgba(180, 230, 210, 0.7);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(80, 210, 180, 0.2);
+      padding-bottom: 0.75rem;
+    }
+
+    /* Форма */
+    .anketa-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #b4f0e0;
+      opacity: 0.9;
+    }
+
+    .form-group input, 
+    .form-group textarea,
+    .form-group select {
+      background: rgba(10, 25, 22, 0.65);
+      border: 1px solid rgba(70, 180, 160, 0.5);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 450;
+      color: #eefaf5;
+      transition: all 0.2s ease-out;
+      outline: none;
+      font-family: inherit;
+      backdrop-filter: blur(4px);
+      width: 100%;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus, 
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #d06bc0;
+      box-shadow: 0 0 0 3px rgba(208, 107, 192, 0.3);
+      background: rgba(12, 28, 25, 0.85);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: rgba(140, 190, 175, 0.5);
+      font-size: 0.85rem;
+    }
+
+    /* Два поля в ряд */
+    .row-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .row-group .form-group {
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* Кнопка отправки */
+    .submit-btn {
+      margin-top: 0.5rem;
+      background: linear-gradient(105deg, #c05fbb, #aa6fcf);
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s;
+      box-shadow: 0 5px 12px rgba(160, 70, 150, 0.3);
+      font-family: inherit;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(190, 90, 170, 0.45);
+      background: linear-gradient(105deg, #cd6fc5, #b77fdf);
+    }
+
+    .submit-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Результат (изначально скрыт) */
+    .result-card {
+      background: rgba(18, 30, 28, 0.75);
+      backdrop-filter: blur(14px);
+      border-radius: 24px;
+      padding: 1.8rem;
+      border: 1px solid rgba(70, 200, 170, 0.3);
+      box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    .result-title {
+      color: #b2f0e0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .goal-text {
+      background: rgba(10, 25, 22, 0.6);
+      padding: 1.2rem;
+      border-radius: 16px;
+      border-left: 4px solid #c05fbb;
+      color: #eefaf5;
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      color: #b4f0e0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 1.25rem 0 0.75rem 0;
+    }
+
+    .training-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .training-item {
+      background: rgba(10, 25, 22, 0.6);
+      border-radius: 14px;
+      padding: 1rem;
+      border-left: 4px solid #78e0c8;
+      transition: transform 0.2s;
+    }
+
+    .training-item:hover {
+      transform: translateX(4px);
+      background: rgba(18, 30, 28, 0.8);
+    }
+
+    .training-name {
+      color: #b2f0e0;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .training-desc {
+      color: rgba(200, 230, 215, 0.8);
+      font-size: 0.85rem;
+      margin-bottom: 0.6rem;
+      line-height: 1.4;
+    }
+
+    .training-level {
+      display: inline-block;
+      background: rgba(192, 95, 187, 0.2);
+      border: 1px solid rgba(192, 95, 187, 0.5);
+      border-radius: 20px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.75rem;
+      color: #e2a0e0;
+    }
+
+    .profile-link {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.9rem 2rem;
+      background: linear-gradient(105deg, #c05fbb, #aa6fcf);
+      color: white;
+      text-decoration: none;
+      border-radius: 14px;
+      font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.2s;
+      text-align: center;
+      width: 100%;
+    }
+
+    .profile-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(160, 70, 150, 0.4);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 560px) {
+      .anketa-card, .result-card {
+        padding: 1.5rem;
+      }
+      .row-group {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .anketa-card h2 {
+        font-size: 1.3rem;
+      }
+      body {
+        padding: 1rem;
+      }
+    }
+
+    /* Стили для кастомного скролла всей страницы */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #13352e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ba78c4;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Карточка с формой -->
+    <div class="anketa-card">
+      <h2>Медицинская анкета</h2>
+      <div class="subhead">Заполняется лечащим врачом для формирования персонализированного пути восстановления</div>
+
+      <form id="medicalForm" class="anketa-form">
+        <div class="form-group">
+          <label>Основной диагноз</label>
+          <input type="text" id="diagnosis" name="diagnosis" placeholder="Например: Ишемический инсульт" required>
         </div>
 
-        <button type="submit" style="padding: 15px; background: #fb8c00; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Сгенерировать путь восстановления
-        </button>
-    </form>
-
-    {% else %}
-    <div style="background: #f0f7ff; padding: 30px; border-radius: 15px; border: 1px solid #d1e3f8;">
-        <h3 style="color: #1976d2; margin-top: 0;">Ваша SMART-цель сформирована ✨</h3>
-        <p style="font-size: 1.1em; background: white; padding: 15px; border-radius: 8px; border-left: 5px solid #1976d2;">
-            {{ profile.goal_text }}
-        </p>
-
-        <h4 style="margin-top: 25px; color: #2c3e50;">Программа тренировок:</h4>
-        <ul style="list-style: none; padding: 0;">
-            {% for item in profile.training_program %}
-    <li style="background: white; margin-bottom: 15px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #4CAF50;">
-        <strong style="color: #2e7d32; font-size: 1.1em;">{{ item.name }}</strong>
-        <p style="margin: 5px 0; color: #666;">{{ item.description }}</p>
-
-        <div style="font-size: 0.9em; color: #333; background: #f1f8e9; padding: 5px 10px; border-radius: 4px; display: inline-block;">
-            Старт: <b>{{ item.progression.level_1 }}</b>
+        <div class="form-group">
+          <label>Уточнение / Анамнез</label>
+          <textarea id="diagnosisDetail" name="diagnosis_detail" placeholder="Дополнительные сведения о состоянии, перенесённые операции, хронические заболевания..."></textarea>
         </div>
-    </li>
-    {% empty %}
-    <li>Программа еще не сформирована.</li>
-    {% endfor %}
-        </ul>
 
-        <div style="margin-top: 30px; text-align: center;">
-            <a href="{% url 'profile' %}" style="display: inline-block; padding: 15px 30px; background: #4CAF50; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                Перейти в личный кабинет →
-            </a>
+        <div class="form-group">
+          <label>Тип ограничения</label>
+          <input type="text" id="limitationType" name="limitation_type" placeholder="Например: Нарушение ходьбы, снижение мелкой моторики" required>
         </div>
+
+        <div class="row-group">
+          <div class="form-group">
+            <label>Текущий показатель (м/балл)</label>
+            <input type="number" step="0.1" id="baselineValue" name="baseline_value" placeholder="0.0" required>
+          </div>
+          <div class="form-group">
+            <label>Условия замера</label>
+            <input type="text" id="baselineCondition" name="baseline_condition" placeholder="Например: С опорой на ходунки, без помощи">
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="generateBtn">Сгенерировать путь восстановления →</button>
+      </form>
     </div>
-    {% endif %}
-</div>
+
+    <!-- Блок для отображения результата (изначально пуст) -->
+    <div id="resultContainer" style="display: none;"></div>
+  </div>
+
+  <script>
+    (function() {
+      const form = document.getElementById('medicalForm');
+      const resultContainer = document.getElementById('resultContainer');
+
+      // Функция генерации SMART-цели на основе введённых данных
+      function generateSmartGoal(formData) {
+        const diagnosis = formData.diagnosis || 'заболевание';
+        const limitation = formData.limitationType || 'функциональное ограничение';
+        const baseline = formData.baselineValue ? parseFloat(formData.baselineValue) : null;
+        const condition = formData.baselineCondition || 'текущее состояние';
+        
+        let targetText = '';
+        let baselineText = '';
+        
+        if (baseline !== null && !isNaN(baseline)) {
+          const target = (baseline * 1.4).toFixed(1);
+          baselineText = `${baseline} ед.`;
+          targetText = `${target} ед.`;
+        } else {
+          baselineText = 'текущего уровня';
+          targetText = 'значительного улучшения';
+        }
+        
+        const goals = [
+          `Улучшить показатель "${limitation.toLowerCase()}" с ${baselineText} до ${targetText} в течение 8 недель, выполняя ежедневные реабилитационные упражнения по 20–25 минут.`,
+          `Достичь стабильного прогресса в восстановлении после ${diagnosis.toLowerCase()}: увеличить функциональный показатель с ${baselineText} до ${targetText} за 6 недель при регулярных тренировках (${condition.toLowerCase()}).`,
+          `Снизить выраженность ${limitation.toLowerCase()} на 40% за 2 месяца, закрепив результат в повседневной активности (исходно: ${baselineText}, условия: ${condition.toLowerCase()}).`
+        ];
+        
+        return goals[Math.floor(Math.random() * goals.length)];
+      }
+      
+      // Генерация программы тренировок (3 упражнения)
+      function generateTrainingProgram(limitation, baselineValue, condition) {
+        const limitationLower = limitation.toLowerCase();
+        const hasWalking = limitationLower.includes('ходьб') || limitationLower.includes('ход');
+        const hasMotor = limitationLower.includes('моторик') || limitationLower.includes('руки') || limitationLower.includes('мелк');
+        
+        let program = [];
+        
+        if (hasWalking) {
+          program.push({
+            name: 'Ходьба с контролем равновесия',
+            description: 'Упражнения на развитие устойчивости и координации, имитация шага с опорой на поручень. Контроль дыхания и ритма.',
+            level: `Старт: ${baselineValue ? baselineValue + ' м в медленном темпе' : '3–5 минут ходьбы с поддержкой'}`
+          });
+          program.push({
+            name: 'Укрепление мышц нижних конечностей',
+            description: 'Подъёмы на носки, сгибание ног в положении сидя, мини-приседания с опорой на стул.',
+            level: `Старт: 8–10 повторений, 2 подхода`
+          });
+        } else if (hasMotor) {
+          program.push({
+            name: 'Мелкая моторика и ловкость',
+            description: 'Перекладывание мелких предметов, сжатие кистевого эспандера, пальчиковая гимнастика.',
+            level: `Старт: 2 подхода по 10 движений`
+          });
+          program.push({
+            name: 'Координация и точность',
+            description: 'Упражнения на захват и удержание предметов разной формы, рисование по точкам.',
+            level: `Старт: 5–7 минут ежедневно`
+          });
+        } else {
+          program.push({
+            name: 'Общеукрепляющая тренировка',
+            description: 'Комплекс упражнений на основные группы мышц с акцентом на общую выносливость.',
+            level: `Старт: 10–12 повторений, 2 подхода`
+          });
+          program.push({
+            name: 'Дыхательная гимнастика и релаксация',
+            description: 'Упражнения на глубокое диафрагмальное дыхание, снижение мышечного напряжения.',
+            level: `Старт: 5 минут в день`
+          });
+        }
+        
+        program.push({
+          name: 'Тренировка выносливости',
+          description: `Постепенное увеличение нагрузки с учётом текущего состояния (${condition || 'щадящий режим'}). Контроль пульса и самочувствия.`,
+          level: `Старт: ${baselineValue ? baselineValue + ' ед. активности' : 'минимальная нагрузка'}`
+        });
+        
+        return program;
+      }
+      
+      // Отображение результата и плавный скролл к нему
+      function displayResult(goalText, trainingProgram) {
+        const resultHtml = `
+          <div class="result-card" id="resultCard">
+            <div class="result-title">
+              <span>✨</span> Ваша SMART-цель сформирована
+            </div>
+            <div class="goal-text">
+              ${escapeHtml(goalText)}
+            </div>
+            <div class="section-title">📋 Программа тренировок</div>
+            <ul class="training-list">
+              ${trainingProgram.map(item => `
+                <li class="training-item">
+                  <div class="training-name">${escapeHtml(item.name)}</div>
+                  <div class="training-desc">${escapeHtml(item.description)}</div>
+                  <div class="training-level">${escapeHtml(item.level)}</div>
+                </li>
+              `).join('')}
+            </ul>
+            <a href="#" class="profile-link" id="profileRedirect">Перейти в личный кабинет →</a>
+          </div>
+        `;
+        
+        resultContainer.innerHTML = resultHtml;
+        resultContainer.style.display = 'block';
+        
+        const profileLink = document.getElementById('profileRedirect');
+        if (profileLink) {
+          profileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('🔮 Демо-режим: переход в личный кабинет (симуляция). В реальном проекте здесь будет URL профиля.');
+          });
+        }
+        
+        // Плавный скролл всей страницы к результату
+        setTimeout(() => {
+          const resultCard = document.getElementById('resultCard');
+          if (resultCard) {
+            resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+      
+      function escapeHtml(str) {
+        if (!str) return '';
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+      
+      // Обработчик отправки формы
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const diagnosis = document.getElementById('diagnosis').value.trim();
+        const diagnosisDetail = document.getElementById('diagnosisDetail').value.trim();
+        const limitationType = document.getElementById('limitationType').value.trim();
+        const baselineValue = document.getElementById('baselineValue').value;
+        const baselineCondition = document.getElementById('baselineCondition').value.trim();
+        
+        if (!diagnosis) {
+          alert('Пожалуйста, укажите основной диагноз.');
+          document.getElementById('diagnosis').focus();
+          return;
+        }
+        if (!limitationType) {
+          alert('Пожалуйста, укажите тип ограничения.');
+          document.getElementById('limitationType').focus();
+          return;
+        }
+        if (!baselineValue) {
+          alert('Укажите текущий показатель (м/балл).');
+          document.getElementById('baselineValue').focus();
+          return;
+        }
+        
+        const baselineNum = parseFloat(baselineValue);
+        if (isNaN(baselineNum) || baselineNum < 0) {
+          alert('Текущий показатель должен быть положительным числом.');
+          return;
+        }
+        
+        const formData = {
+          diagnosis: diagnosis,
+          diagnosisDetail: diagnosisDetail,
+          limitationType: limitationType,
+          baselineValue: baselineNum,
+          baselineCondition: baselineCondition || 'стандартные условия'
+        };
+        
+        const btn = document.getElementById('generateBtn');
+        const originalText = btn.innerText;
+        btn.innerText = 'Генерация...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+          const smartGoal = generateSmartGoal(formData);
+          const trainingProgram = generateTrainingProgram(
+            limitationType,
+            baselineNum,
+            baselineCondition || 'щадящий режим'
+          );
+          
+          displayResult(smartGoal, trainingProgram);
+          
+          btn.innerText = originalText;
+          btn.disabled = false;
+          
+          const resultCard = document.querySelector('.result-card');
+          if (resultCard) {
+            resultCard.style.transition = 'box-shadow 0.3s';
+            resultCard.style.boxShadow = '0 0 0 2px rgba(192, 95, 187, 0.5), 0 25px 40px -12px rgba(0,0,0,0.4)';
+            setTimeout(() => {
+              if (resultCard) resultCard.style.boxShadow = '';
+            }, 600);
+          }
+        }, 600);
+      });
+    })();
+  </script>
+</body>
+</html>
